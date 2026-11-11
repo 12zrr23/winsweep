@@ -1,0 +1,68 @@
+name: release
+
+# 打 tag（v0.1.1 这种）即触发：校验版本一致性 → 构建 exe → 建 Release → 发布 npm
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify versions match tag
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}".TrimStart("v")
+          $cargoMatch = Select-String -Path Cargo.toml -Pattern '^version\s*=\s*"([^"]+)"'
+          if (-not $cargoMatch) { throw "无法读取 Cargo.toml 版本" }
+          $cargo = $cargoMatch.Matches[0].Groups[1].Value
+          $npmv = (Get-Content npm/package.json -Raw | ConvertFrom-Json).version
+          Write-Host "tag=$tag  cargo=$cargo  npm=$npmv"
+          if ($tag -ne $cargo) { throw "tag($tag) 与 Cargo.toml($cargo) 版本不一致" }
+          if ($tag -ne $npmv) { throw "tag($tag) 与 npm/package.json($npmv) 版本不一致" }
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build (release)
+        run: cargo build --release --locked
+
+      - name: Package asset + checksum
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item target\release\winsweep.exe dist\winsweep-win32-x64.exe
+          $hash = (Get-FileHash dist\winsweep-win32-x64.exe -Algorithm SHA256).Hash.ToLower()
+          Set-Content -Path dist\winsweep-win32-x64.exe.sha256 -Value $hash -NoNewline -Encoding ASCII
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/winsweep-win32-x64.exe
+            dist/winsweep-win32-x64.exe.sha256
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+
+      - name: Setup Node (npm registry)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish to npm
+        working-directory: npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --registry=https://registry.npmjs.org/ --access public

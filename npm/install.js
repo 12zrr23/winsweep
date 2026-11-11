@@ -21,10 +21,9 @@ const pkg = require("./package.json");
 const VERSION = pkg.version;
 const ASSET = `winsweep-win32-x64.exe`;
 const DEFAULT_BASE = `https://github.com/12zrr23/winsweep/releases/download/v${VERSION}`;
-const EXPECTED_SHA256 =
-  process.env.WINSWEEP_SKIP_VERIFY === "1"
-    ? null
-    : "c576cbb59312d3adf9dbe3b13a8fa75d9e660d412120135585c381f089d62e4e";
+const SHA_URL = `${DEFAULT_BASE}/${ASSET}.sha256`;
+// 校验值优先取环境变量，其次下载 Release 里的 .sha256（发版流水线自动生成）
+const ENV_SHA256 = (process.env.WINSWEEP_SHA256 || "").trim().toLowerCase() || null;
 
 const binDir = path.join(__dirname, "bin");
 const target = path.join(binDir, "winsweep.exe");
@@ -55,12 +54,34 @@ function fail(msg) {
 
 function alreadyGood() {
   if (!fs.existsSync(target)) return false;
-  if (!EXPECTED_SHA256) return true;
+  if (!ENV_SHA256) return true; // 本地无法得知远端校验值，存在即视为已安装（重新安装会覆盖）
   try {
-    return sha256File(target) === EXPECTED_SHA256;
+    return sha256File(target) === ENV_SHA256;
   } catch {
     return false;
   }
+}
+
+function fetchText(url, redirects = 0) {
+  if (redirects > 6) return Promise.reject(new Error("重定向次数过多"));
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith("http://") ? http : https;
+    const req = client.get(url, { headers: { "User-Agent": `winsweep-npm/${VERSION}` } }, (res) => {
+      const code = res.statusCode || 0;
+      if (code >= 300 && code < 400 && res.headers.location) {
+        res.resume();
+        return resolve(fetchText(new URL(res.headers.location, url).toString(), redirects + 1));
+      }
+      if (code !== 200) { res.resume(); return reject(new Error(`HTTP ${code}`)); }
+      let data = "";
+      res.setEncoding("utf8");
+      res.on("data", (d) => (data += d));
+      res.on("end", () => resolve(data));
+      res.on("error", reject);
+    });
+    req.setTimeout(20000, () => req.destroy(new Error("超时")));
+    req.on("error", reject);
+  });
 }
 
 function download(url, dest, redirects = 0) {
@@ -134,12 +155,23 @@ function download(url, dest, redirects = 0) {
   const size = fs.statSync(tmp).size;
   if (size < 1024 * 1024) fail(`下载文件过小（${size} 字节），可能不是有效程序`);
 
-  if (EXPECTED_SHA256) {
-    const got = sha256File(tmp);
-    if (got !== EXPECTED_SHA256) {
-      try { fs.unlinkSync(tmp); } catch {}
-      fail(`校验失败：期望 ${EXPECTED_SHA256}，实际 ${got}`);
+  let expected = ENV_SHA256;
+  if (!expected) {
+    try {
+      expected = (await fetchText(SHA_URL)).trim().split(/\s+/)[0].toLowerCase();
+    } catch (e) {
+      expected = null;
     }
+  }
+  if (expected) {
+    const got = sha256File(tmp);
+    if (got !== expected) {
+      try { fs.unlinkSync(tmp); } catch {}
+      fail(`校验失败：期望 ${expected}，实际 ${got}`);
+    }
+    ok("sha256 校验通过");
+  } else if (process.env.WINSWEEP_SKIP_VERIFY !== "1") {
+    warn("未能获取 .sha256 校验文件，已跳过校验（可用 WINSWEEP_SHA256=... 指定，或 WINSWEEP_SKIP_VERIFY=1 明确跳过）");
   }
 
   fs.renameSync(tmp, target);
