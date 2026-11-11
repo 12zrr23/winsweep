@@ -13,9 +13,9 @@ use core::uninstall::AppUninstaller;
 
 #[derive(Parser)]
 #[command(name = "winsweep")]
-#[command(author = "WinSweep Team")]
-#[command(version = "0.1.0")]
-#[command(about = "Deep clean, optimize, analyze disk, and monitor your Windows PC in Rust", long_about = None)]
+#[command(author = env!("CARGO_PKG_AUTHORS"))]
+#[command(version = env!("CARGO_PKG_VERSION"))]
+#[command(about = env!("CARGO_PKG_DESCRIPTION"), long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
