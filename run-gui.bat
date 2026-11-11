@@ -1,0 +1,3 @@
+@echo off
+echo Starting WinSweep Dashboard...
+start "" "%~dp0target\release\winsweep.exe" gui
