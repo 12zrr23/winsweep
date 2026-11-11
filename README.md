@@ -131,7 +131,25 @@ WinSweep 解决四类问题：
 
 ## 4. 快速开始
 
-### 4.1 直接运行（已编译）
+### 4.1 通过 npm 安装（普通用户推荐）
+
+```bash
+npm install -g winsweep
+winsweep --version
+winsweep gui
+```
+
+安装时 `postinstall` 会自动从 GitHub Release 下载 Windows 二进制（约 4.8 MB 校验后落盘），**无需编译、无外部运行时**。
+网络受限时可用镜像或本地文件：
+
+```bash
+WINSWEEP_MIRROR=https://ghproxy.net/ npm install -g winsweep
+WINSWEEP_BINARY=D:\downloads\winsweep.exe npm install -g winsweep
+```
+
+> npm 包体积仅 4.3 kB，二进制在安装阶段按需下载，升级版本时自动替换。
+
+### 4.2 直接运行（已编译）
 
 ```powershell
 # 启动 GUI（会自动打开浏览器）
@@ -141,7 +159,7 @@ WinSweep 解决四类问题：
 .\winsweep\run-gui.bat
 ```
 
-### 4.2 从源码构建
+### 4.3 从源码构建
 
 ```powershell
 cd winsweep
@@ -152,7 +170,7 @@ cargo build --release
 - 工具链：`x86_64-pc-windows-gnu` + w64devkit（本项目使用），或 MSVC 工具链均可；
 - 无外部运行时依赖，拷到别的机器可直接跑。
 
-### 4.3 三条最常用命令
+### 4.4 三条最常用命令
 
 ```powershell
 winsweep status                  # 先看机器状态与健康分
@@ -355,6 +373,12 @@ UI 采用「**一套组件 + 多套主题令牌**」架构：组件只引用语�
 winsweep/
 ├─ Cargo.toml                 包信息与依赖（clap/serde/sysinfo/walkdir/trash/chrono/colored/tiny_http）
 ├─ run-gui.bat                双击启动 GUI
+├─ LICENSE                    MIT 许可
+├─ npm/                       npm 分发包（postinstall 下载 Release 二进制）
+│  ├─ package.json            bin: winsweep → bin/winsweep.js
+│  ├─ install.js              幂等下载 + sha256 校验（支持镜像/离线）
+│  ├─ bin/winsweep.js         参数透传启动器
+│  └─ README.md               npm 包首页说明
 ├─ README.md                  本文件
 ├─ DESIGN.md                  ★ 视觉层唯一事实来源（主题 / 令牌 / 布局规则）
 ├─ design-system/winsweep/MASTER.md   早期设计探索记录（历史，已被 DESIGN.md 取代）

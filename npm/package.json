@@ -1,0 +1,45 @@
+{
+  "name": "winsweep",
+  "version": "0.1.0",
+  "description": "Windows 深度清理 / 系统优化 / 磁盘分析 / 软件卸载 / 安全文件迁移（Rust 单文件 + 本地 Web GUI）",
+  "bin": {
+    "winsweep": "bin/winsweep.js"
+  },
+  "files": [
+    "bin/winsweep.js",
+    "install.js",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "windows",
+    "cleaner",
+    "disk-cleanup",
+    "system-optimizer",
+    "disk-analyzer",
+    "gui",
+    "cli",
+    "rust"
+  ],
+  "author": "owen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/12zrr23/winsweep.git"
+  },
+  "homepage": "https://github.com/12zrr23/winsweep#readme",
+  "bugs": {
+    "url": "https://github.com/12zrr23/winsweep/issues"
+  }
+}
