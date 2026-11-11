@@ -36,7 +36,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/12zrr23/winsweep.git"
+    "url": "git+https://github.com/12zrr23/winsweep.git",
+    "directory": "npm"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "homepage": "https://github.com/12zrr23/winsweep#readme",
   "bugs": {
