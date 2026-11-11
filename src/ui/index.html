@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="academia">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WinSweep · Windows 深度清理与监控</title>
+<meta name="color-scheme" content="dark light" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Varela+Round&family=Nunito+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================================
+   WinSweep — 多主题界面
+   结构：① 基础重置与布局（不含颜色） ② 主题令牌（每套一组） ③ 组件（只用令牌）
+   新增主题 = 在 ② 里追加一个 :root[data-theme="x"] 块，并在 JS 的 THEMES 里登记
+   ============================================================================ */
+
+/* ---------- ① 基础 ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--page-ink);
+  background-color: var(--bg);
+  background-image: var(--bg-image);
+  background-attachment: fixed;
+  display: flex;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+::selection { background: var(--sel-bg); color: var(--sel-ink); }
+body { caret-color: var(--primary); }
+.main { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+.main::-webkit-scrollbar { width: 10px; }
+.main::-webkit-scrollbar-thumb { background: var(--line-strong); border: 3px solid transparent; background-clip: content-box; }
+.main::-webkit-scrollbar-thumb:hover { background: var(--ink-mute); background-clip: content-box; }
+
+/* ---------- ② 主题令牌 ---------- */
+
+/* ===== 1. 暗黑学院风（Dark Academia）===== */
+:root[data-theme="academia"] {
+  --bg: #3d2b1f;
+  --bg-image:
+    radial-gradient(1200px 700px at 12% -8%, rgba(139,115,85,.10) 0%, transparent 62%),
+    radial-gradient(900px 600px at 100% 100%, rgba(45,74,62,.35) 0%, transparent 60%);
+  --surface: #f5f0e1;
+  --surface-2: rgba(139,115,85,.08);
+  --surface-3: rgba(139,115,85,.16);
+  --ink: #2b1d14;
+  --ink-soft: #5c4033;
+  --ink-mute: #6b5241;
+  --line: rgba(139,115,85,.28);
+  --line-strong: rgba(139,115,85,.55);
+
+  --primary: #2d4a3e;
+  --primary-ink: #f5f0e1;
+  --primary-hover: #35594a;
+  --primary-tint: rgba(45,74,62,.12);
+  --accent: #5c4033;
+  --accent-ink: #f5f0e1;
+  --danger: #7a3428;
+  --danger-ink: #f5f0e1;
+  --danger-hover: #63281e;
+  --ok: #4b6238;
+  --ok-ink: #f5f0e1;
+  --warn: #7a5a2e;
+  --warn-ink: #f5f0e1;
+  --sel-bg: rgba(139,115,85,.45);
+  --sel-ink: #f5f0e1;
+
+  --chip-bg: #2d4a3e;
+  --chip-ink: #f5f0e1;
+  --chip-radius: 50%;
+  --r-card: 2px; --r-ctrl: 2px; --r-tag: 2px; --r-pill: 2px;
+  --bw: 1px; --bw-row: 1px;
+
+  --shadow-card: inset 0 0 35px rgba(139,115,85,.05), 0 4px 14px rgba(0,0,0,.25);
+  --shadow-card-hover: inset 0 0 60px rgba(139,115,85,.14), 0 8px 24px rgba(0,0,0,.32);
+  --card-hover-tint: radial-gradient(420px 260px at 100% 0%, rgba(232,205,140,.20) 0%, transparent 70%);
+  --shadow-btn: 0 4px 10px rgba(0,0,0,.35);
+  --shadow-btn-hover: 0 6px 18px rgba(0,0,0,.45);
+
+  --row-bg: transparent;
+  --row-border: 0;
+  --row-sep: 1px solid rgba(139,115,85,.18);
+  --row-radius: 0;
+  --row-hover-bg: rgba(139,115,85,.07);
+  --row-hover-shadow: inset 0 0 24px rgba(139,115,85,.06);
+
+  --btn-bg: #5c4033;
+  --btn-ink: rgba(245,240,225,.90);
+  --btn-border: 1px solid rgba(139,115,85,.45);
+  --btn-hover-bg: #6b4a3b;
+  --btn-hover-ink: #f5f0e1;
+  --btn-hover-border: 1px solid rgba(139,115,85,.80);
+  --btn-radius: 2px;
+  --btn-pad: 16px 40px;
+  --btn-transform: uppercase;
+  --btn-tracking: .15em;
+  --btn-fs: 14px;
+
+  --bar-h: 4px; --bar-radius: 0;
+  --bar-track: rgba(139,115,85,.18);
+  --bar-fill: linear-gradient(90deg, #8b7355 0%, #5c4033 100%);
+  --bar-fill-2: linear-gradient(90deg, #647f53 0%, #3f6b57 100%);
+  --bar-fill-3: linear-gradient(90deg, #8b7355 0%, #6b4a3b 100%);
+
+  --sidebar-bg: #2d4a3e;
+  --sidebar-image: linear-gradient(180deg, rgba(61,43,31,.28) 0%, transparent 55%);
+  --sidebar-border: 1px solid rgba(139,115,85,.25);
+  --sidebar-ink: #f5f0e1;
+  --sidebar-muted: rgba(245,240,225,.78);
+  --nav-ink: rgba(245,240,225,.90);
+  --nav-hover-bg: rgba(61,43,31,.45);
+  --nav-active-bg: #3d2b1f;
+  --nav-active-ink: #f5f0e1;
+  --nav-active-border: 1px solid rgba(139,115,85,.55);
+  --nav-active-shadow: inset 0 0 20px rgba(139,115,85,.16);
+  --brand-bg: #3d2b1f;
+  --brand-ink: #f5f0e1;
+  --brand-border: 2px solid rgba(139,115,85,.40);
+
+  --head-rule: 1px solid rgba(139,115,85,.40);
+  --section-rule: 1px solid rgba(139,115,85,.25);
+
+  --font-display: 'EB Garamond', Garamond, Georgia, 'Songti SC', 'SimSun', serif;
+  --font-body: 'EB Garamond', Garamond, Georgia, 'Songti SC', 'SimSun', serif;
+  --fs-body: 16px; --lh-body: 1.8;
+  --fs-h2: 32px; --track-h2: .02em; --lh-h2: 1.25;
+  --fs-num: 32px; --track-num: .02em;
+  --fs-rowname: 16px; --fs-rowdesc: 14px; --fs-rowvalue: 19px;
+  --fs-label: 12px; --track-label: .15em; --label-transform: uppercase;
+  --dur: 700ms; --dur-card: 1000ms; --ease: ease-in-out;
+  --focus-ring: 0 0 0 2px rgba(139,115,85,.20);
+  --focus-outline: 1px solid rgba(139,115,85,.80);
+  --is-dark: 1;
+
+  --page-ink: #f5f0e1;
+  --page-ink-soft: #d8cfb8;
+  --page-ink-mute: #b9ad93;
+  --page-max-width: 1080px;
+  --card-pad: 40px;}
+
+/* ===== 2. 柔和现代（Soft UI Evolution）===== */
+:root[data-theme="soft"] {
+  --bg: #F7F9FD;
+  --bg-image:
+    radial-gradient(1100px 620px at 8% -10%, #F7F1FB 0%, transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, #EEF3FB 0%, transparent 55%),
+    linear-gradient(168deg, #F7F9FD 0%, #EEF3FB 100%);
+  --surface: #FFFFFF;
+  --surface-2: #F4F7FC;
+  --surface-3: #E9EFF9;
+  --ink: #1A2033;
+  --ink-soft: #4B5468;
+  --ink-mute: #6F7A92;
+  --line: rgba(26,32,51,.09);
+  --line-strong: rgba(26,32,51,.16);
+
+  --primary: #3F5BD8;
+  --primary-ink: #FFFFFF;
+  --primary-hover: #334CBF;
+  --primary-tint: rgba(63,91,216,.10);
+  --accent: #E8B33C;
+  --accent-ink: #1A2033;
+  --danger: #C2383D;
+  --danger-ink: #FFFFFF;
+  --danger-hover: #A62E33;
+  --ok: #2E9E6B;
+  --ok-ink: #FFFFFF;
+  --warn: #B36B00;
+  --warn-ink: #FFFFFF;
+  --sel-bg: rgba(63,91,216,.16);
+  --sel-ink: #1A2033;
+
+  --chip-bg: rgba(63,91,216,.10);
+  --chip-ink: #3F5BD8;
+  --chip-radius: 10px;
+  --r-card: 16px; --r-ctrl: 10px; --r-tag: 999px; --r-pill: 999px;
+  --bw: 1px; --bw-row: 1px;
+
+  --shadow-card: 0 1px 2px rgba(24,33,66,.05), 0 4px 12px -4px rgba(24,33,66,.10);
+  --shadow-card-hover: 0 2px 4px rgba(24,33,66,.05), 0 12px 28px -10px rgba(24,33,66,.16);
+  --card-hover-tint: none;
+  --shadow-btn: 0 1px 2px rgba(24,33,66,.06);
+  --shadow-btn-hover: 0 2px 6px rgba(24,33,66,.12), 0 12px 24px -10px rgba(63,91,216,.35);
+
+  --row-bg: #FFFFFF;
+  --row-border: 1px solid var(--line);
+  --row-sep: 0;
+  --row-radius: 12px;
+  --row-hover-bg: #FFFFFF;
+  --row-hover-shadow: 0 1px 3px rgba(24,33,66,.08);
+
+  --btn-bg: #FFFFFF;
+  --btn-ink: #1A2033;
+  --btn-border: 1px solid rgba(26,32,51,.16);
+  --btn-hover-bg: #F4F7FC;
+  --btn-hover-ink: #1A2033;
+  --btn-hover-border: 1px solid rgba(26,32,51,.24);
+  --btn-radius: 10px;
+  --btn-pad: 8px 18px;
+  --btn-transform: none;
+  --btn-tracking: .01em;
+  --btn-fs: 13px;
+
+  --bar-h: 8px; --bar-radius: 999px;
+  --bar-track: #E9EFF9;
+  --bar-fill: linear-gradient(90deg, #3F5BD8 0%, #7E6BEA 100%);
+  --bar-fill-2: linear-gradient(90deg, #3FBFA0 0%, #56C9E0 100%);
+  --bar-fill-3: linear-gradient(90deg, #F08A5D 0%, #E8A23C 100%);
+
+  --sidebar-bg: rgba(255,255,255,.78);
+  --sidebar-image: none;
+  --sidebar-border: 1px solid var(--line);
+  --sidebar-ink: #1A2033;
+  --sidebar-muted: #6F7A92;
+  --nav-ink: #4B5468;
+  --nav-hover-bg: #F4F7FC;
+  --nav-active-bg: rgba(63,91,216,.10);
+  --nav-active-ink: #3F5BD8;
+  --nav-active-border: 1px solid rgba(63,91,216,.26);
+  --nav-active-shadow: none;
+  --brand-bg: #3F5BD8;
+  --brand-ink: #FFFFFF;
+  --brand-border: 0;
+
+  --head-rule: 0;
+  --section-rule: 0;
+
+  --font-display: 'Varela Round', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-body: 'Nunito Sans', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif;
+  --fs-body: 13.5px; --lh-body: 1.55;
+  --fs-h2: 27px; --track-h2: -.015em; --lh-h2: 1.25;
+  --fs-num: 32px; --track-num: -.02em;
+  --fs-rowname: 13.5px; --fs-rowdesc: 12px; --fs-rowvalue: 14px;
+  --fs-label: 12px; --track-label: .01em; --label-transform: none;
+  --dur: 200ms; --dur-card: 200ms; --ease: cubic-bezier(.2,.7,.3,1);
+  --focus-ring: 0 0 0 3px rgba(63,91,216,.35);
+  --focus-outline: none;
+  --is-dark: 0;
+
+  --page-ink: #1A2033;
+  --page-ink-soft: #4B5468;
+  --page-ink-mute: #5F6A82;
+  --page-max-width: 1440px;
+  --card-pad: 20px;}
+
+/* ===== 3. Windows Fluent 2 ===== */
+:root[data-theme="fluent"] {
+  --bg: #F3F3F3;
+  --bg-image: radial-gradient(1000px 600px at 85% -10%, #E8F1FB 0%, transparent 60%);
+  --surface: #FFFFFF;
+  --surface-2: #FAFAFA;
+  --surface-3: #F0F0F0;
+  --ink: #1A1A1A;
+  --ink-soft: #4A4A4A;
+  --ink-mute: #616161;
+  --line: #E1E1E1;
+  --line-strong: #C7C7C7;
+
+  --primary: #0F6CBD;
+  --primary-ink: #FFFFFF;
+  --primary-hover: #115EA3;
+  --primary-tint: rgba(15,108,189,.10);
+  --accent: #0F6CBD;
+  --accent-ink: #FFFFFF;
+  --danger: #C42B1C;
+  --danger-ink: #FFFFFF;
+  --danger-hover: #A52618;
+  --ok: #0F7B0F;
+  --ok-ink: #FFFFFF;
+  --warn: #9D5D00;
+  --warn-ink: #FFFFFF;
+  --sel-bg: rgba(15,108,189,.20);
+  --sel-ink: #1A1A1A;
+
+  --chip-bg: #EBF3FC;
+  --chip-ink: #0F6CBD;
+  --chip-radius: 8px;
+  --r-card: 8px; --r-ctrl: 6px; --r-tag: 4px; --r-pill: 999px;
+  --bw: 1px; --bw-row: 1px;
+
+  --shadow-card: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+  --shadow-card-hover: 0 2px 4px rgba(0,0,0,.08), 0 8px 20px rgba(0,0,0,.08);
+  --card-hover-tint: none;
+  --shadow-btn: 0 1px 2px rgba(0,0,0,.08);
+  --shadow-btn-hover: 0 2px 6px rgba(0,0,0,.12);
+
+  --row-bg: #FFFFFF;
+  --row-border: 1px solid #EDEDED;
+  --row-sep: 0;
+  --row-radius: 6px;
+  --row-hover-bg: #F7F9FC;
+  --row-hover-shadow: none;
+
+  --btn-bg: #FFFFFF;
+  --btn-ink: #1A1A1A;
+  --btn-border: 1px solid #D6D6D6;
+  --btn-hover-bg: #F5F5F5;
+  --btn-hover-ink: #1A1A1A;
+  --btn-hover-border: 1px solid #C7C7C7;
+  --btn-radius: 6px;
+  --btn-pad: 8px 18px;
+  --btn-transform: none;
+  --btn-tracking: 0;
+  --btn-fs: 13px;
+
+  --bar-h: 6px; --bar-radius: 999px;
+  --bar-track: #EDEDED;
+  --bar-fill: linear-gradient(90deg, #0F6CBD 0%, #4A9BE0 100%);
+  --bar-fill-2: linear-gradient(90deg, #0F7B0F 0%, #4CAF50 100%);
+  --bar-fill-3: linear-gradient(90deg, #9D5D00 0%, #D08A2A 100%);
+
+  --sidebar-bg: #F9F9F9;
+  --sidebar-image: none;
+  --sidebar-border: 1px solid #E1E1E1;
+  --sidebar-ink: #1A1A1A;
+  --sidebar-muted: #616161;
+  --nav-ink: #4A4A4A;
+  --nav-hover-bg: #EDEDED;
+  --nav-active-bg: #EBF3FC;
+  --nav-active-ink: #0F6CBD;
+  --nav-active-border: 1px solid rgba(15,108,189,.22);
+  --nav-active-shadow: none;
+  --brand-bg: #0F6CBD;
+  --brand-ink: #FFFFFF;
+  --brand-border: 0;
+
+  --head-rule: 0;
+  --section-rule: 0;
+
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  --font-body: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  --fs-body: 13.5px; --lh-body: 1.5;
+  --fs-h2: 26px; --track-h2: -.01em; --lh-h2: 1.25;
+  --fs-num: 30px; --track-num: -.02em;
+  --fs-rowname: 13.5px; --fs-rowdesc: 12px; --fs-rowvalue: 14px;
+  --fs-label: 12px; --track-label: .01em; --label-transform: none;
+  --dur: 150ms; --dur-card: 150ms; --ease: cubic-bezier(.2,.6,.2,1);
+  --focus-ring: 0 0 0 2px #1A1A1A, 0 0 0 4px #FFFFFF;
+  --focus-outline: none;
+  --is-dark: 0;
+
+  --page-ink: #1A1A1A;
+  --page-ink-soft: #4A4A4A;
+  --page-ink-mute: #5E5E5E;
+  --page-max-width: 1440px;
+  --card-pad: 20px;}
+
+/* ===== 4. 极简瑞士（Swiss / International）===== */
+:root[data-theme="swiss"] {
+  --bg: #FFFFFF;
+  --bg-image: none;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F5;
+  --surface-3: #EBEBEB;
+  --ink: #111111;
+  --ink-soft: #444444;
+  --ink-mute: #6B6B6B;
+  --line: #111111;
+  --line-strong: #111111;
+
+  --primary: #D0021B;
+  --primary-ink: #FFFFFF;
+  --primary-hover: #A80115;
+  --primary-tint: rgba(208,2,27,.08);
+  --accent: #111111;
+  --accent-ink: #FFFFFF;
+  --danger: #D0021B;
+  --danger-ink: #FFFFFF;
+  --danger-hover: #A80115;
+  --ok: #0B6B3A;
+  --ok-ink: #FFFFFF;
+  --warn: #8A5A00;
+  --warn-ink: #FFFFFF;
+  --sel-bg: #111111;
+  --sel-ink: #FFFFFF;
+
+  --chip-bg: #111111;
+  --chip-ink: #FFFFFF;
+  --chip-radius: 0;
+  --r-card: 0; --r-ctrl: 0; --r-tag: 0; --r-pill: 0;
+  --bw: 1px; --bw-row: 1px;
+
+  --shadow-card: none;
+  --shadow-card-hover: none;
+  --card-hover-tint: none;
+  --shadow-btn: none;
+  --shadow-btn-hover: none;
+
+  --row-bg: transparent;
+  --row-border: 0;
+  --row-sep: 1px solid #DDDDDD;
+  --row-radius: 0;
+  --row-hover-bg: #F5F5F5;
+  --row-hover-shadow: none;
+
+  --btn-bg: #FFFFFF;
+  --btn-ink: #111111;
+  --btn-border: 1px solid #111111;
+  --btn-hover-bg: #111111;
+  --btn-hover-ink: #FFFFFF;
+  --btn-hover-border: 1px solid #111111;
+  --btn-radius: 0;
+  --btn-pad: 12px 28px;
+  --btn-transform: uppercase;
+  --btn-tracking: .08em;
+  --btn-fs: 12px;
+
+  --bar-h: 10px; --bar-radius: 0;
+  --bar-track: #E5E5E5;
+  --bar-fill: #111111;
+  --bar-fill-2: #0B6B3A;
+  --bar-fill-3: #D0021B;
+
+  --sidebar-bg: #FFFFFF;
+  --sidebar-image: none;
+  --sidebar-border: 1px solid #111111;
+  --sidebar-ink: #111111;
+  --sidebar-muted: #6B6B6B;
+  --nav-ink: #444444;
+  --nav-hover-bg: #F5F5F5;
+  --nav-active-bg: #111111;
+  --nav-active-ink: #FFFFFF;
+  --nav-active-border: 1px solid #111111;
+  --nav-active-shadow: none;
+  --brand-bg: #111111;
+  --brand-ink: #FFFFFF;
+  --brand-border: 0;
+
+  --head-rule: 2px solid #111111;
+  --section-rule: 1px solid #111111;
+
+  --font-display: 'Inter', 'Helvetica Neue', Arial, 'Microsoft YaHei UI', sans-serif;
+  --font-body: 'Inter', 'Helvetica Neue', Arial, 'Microsoft YaHei UI', sans-serif;
+  --fs-body: 13.5px; --lh-body: 1.6;
+  --fs-h2: 30px; --track-h2: -.02em; --lh-h2: 1.2;
+  --fs-num: 34px; --track-num: -.03em;
+  --fs-rowname: 13.5px; --fs-rowdesc: 12px; --fs-rowvalue: 14px;
+  --fs-label: 11px; --track-label: .10em; --label-transform: uppercase;
+  --dur: 180ms; --dur-card: 180ms; --ease: cubic-bezier(.2,.7,.3,1);
+  --focus-ring: 0 0 0 2px #FFFFFF, 0 0 0 4px #111111;
+  --focus-outline: none;
+  --is-dark: 0;
+
+  --page-ink: #111111;
+  --page-ink-soft: #444444;
+  --page-ink-mute: #666666;
+  --page-max-width: 1200px;
+  --card-pad: 28px;}
+
+/* ===== 5. 深色 OLED（Dark Tech）===== */
+:root[data-theme="oled"] {
+  --bg: #000000;
+  --bg-image: radial-gradient(900px 520px at 100% 0%, rgba(34,211,167,.08) 0%, transparent 60%);
+  --surface: #0B0B0C;
+  --surface-2: #141416;
+  --surface-3: #1C1C1F;
+  --ink: #F2F2F2;
+  --ink-soft: #B3B3B3;
+  --ink-mute: #8C8C8C;
+  --line: rgba(255,255,255,.12);
+  --line-strong: rgba(255,255,255,.22);
+
+  --primary: #22D3A7;
+  --primary-ink: #06251C;
+  --primary-hover: #3BE3B9;
+  --primary-tint: rgba(34,211,167,.14);
+  --accent: #FFB020;
+  --accent-ink: #211503;
+  --danger: #FF6B6B;
+  --danger-ink: #240707;
+  --danger-hover: #FF8585;
+  --ok: #22D3A7;
+  --ok-ink: #06251C;
+  --warn: #FFB020;
+  --warn-ink: #211503;
+  --sel-bg: rgba(34,211,167,.30);
+  --sel-ink: #F2F2F2;
+
+  --chip-bg: rgba(34,211,167,.14);
+  --chip-ink: #22D3A7;
+  --chip-radius: 10px;
+  --r-card: 12px; --r-ctrl: 8px; --r-tag: 6px; --r-pill: 999px;
+  --bw: 1px; --bw-row: 1px;
+
+  --shadow-card: none;
+  --shadow-card-hover: none;
+  --card-hover-tint: none;
+  --shadow-btn: none;
+  --shadow-btn-hover: none;
+
+  --row-bg: #0B0B0C;
+  --row-border: 1px solid rgba(255,255,255,.10);
+  --row-sep: 0;
+  --row-radius: 8px;
+  --row-hover-bg: #141416;
+  --row-hover-shadow: none;
+
+  --btn-bg: #141416;
+  --btn-ink: #F2F2F2;
+  --btn-border: 1px solid rgba(255,255,255,.18);
+  --btn-hover-bg: #1C1C1F;
+  --btn-hover-ink: #FFFFFF;
+  --btn-hover-border: 1px solid rgba(34,211,167,.6);
+  --btn-radius: 8px;
+  --btn-pad: 8px 18px;
+  --btn-transform: none;
+  --btn-tracking: .01em;
+  --btn-fs: 13px;
+
+  --bar-h: 6px; --bar-radius: 999px;
+  --bar-track: #1C1C1F;
+  --bar-fill: linear-gradient(90deg, #22D3A7 0%, #3BE3B9 100%);
+  --bar-fill-2: linear-gradient(90deg, #22D3A7 0%, #0FA88A 100%);
+  --bar-fill-3: linear-gradient(90deg, #FFB020 0%, #E08A00 100%);
+
+  --sidebar-bg: #060607;
+  --sidebar-image: none;
+  --sidebar-border: 1px solid rgba(255,255,255,.10);
+  --sidebar-ink: #F2F2F2;
+  --sidebar-muted: #8C8C8C;
+  --nav-ink: #B3B3B3;
+  --nav-hover-bg: #141416;
+  --nav-active-bg: rgba(34,211,167,.12);
+  --nav-active-ink: #22D3A7;
+  --nav-active-border: 1px solid rgba(34,211,167,.35);
+  --nav-active-shadow: none;
+  --brand-bg: #22D3A7;
+  --brand-ink: #06251C;
+  --brand-border: 0;
+
+  --head-rule: 0;
+  --section-rule: 0;
+
+  --font-display: 'Inter', 'Microsoft YaHei UI', system-ui, sans-serif;
+  --font-body: 'Inter', 'Microsoft YaHei UI', system-ui, sans-serif;
+  --fs-body: 13.5px; --lh-body: 1.55;
+  --fs-h2: 26px; --track-h2: -.01em; --lh-h2: 1.25;
+  --fs-num: 30px; --track-num: -.02em;
+  --fs-rowname: 13.5px; --fs-rowdesc: 12px; --fs-rowvalue: 14px;
+  --fs-label: 11px; --track-label: .06em; --label-transform: uppercase;
+  --dur: 160ms; --dur-card: 160ms; --ease: cubic-bezier(.2,.7,.3,1);
+  --focus-ring: 0 0 0 2px rgba(34,211,167,.35);
+  --focus-outline: none;
+  --is-dark: 1;
+
+  --page-ink: #F2F2F2;
+  --page-ink-soft: #B3B3B3;
+  --page-ink-mute: #8C8C8C;
+  --page-max-width: 1440px;
+  --card-pad: 20px;}
+
+/* ---------- ③ 组件 ---------- */
+.sidebar {
+  position: relative; z-index: 2;
+  width: 262px; flex: 0 0 262px;
+  padding: 24px 20px;
+  display: flex; flex-direction: column; gap: 24px;
+  background-color: var(--sidebar-bg);
+  background-image: var(--sidebar-image);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-right: var(--sidebar-border);
+  color: var(--sidebar-ink);
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 40px; height: 40px; flex: 0 0 40px;
+  display: grid; place-items: center;
+  font-family: var(--font-display);
+  font-size: 19px; font-weight: 600;
+  color: var(--brand-ink);
+  background: var(--brand-bg);
+  border: var(--brand-border);
+  border-radius: var(--chip-radius);
+  box-shadow: var(--shadow-btn);
+}
+.brand-text h1 {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 600;
+  letter-spacing: var(--track-h2); line-height: 1.2;
+  color: var(--sidebar-ink);
+}
+.brand-text p {
+  margin-top: 2px;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: var(--track-label); text-transform: var(--label-transform);
+  color: var(--sidebar-muted);
+}
+
+.nav-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 40px;
+  padding: 9px 12px;
+  font-family: var(--font-body);
+  font-size: var(--fs-rowname); font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--nav-ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-ctrl);
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease),
+              border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.nav-item svg { width: 17px; height: 17px; flex: 0 0 17px; opacity: .85; }
+.nav-item:hover { color: var(--nav-active-ink); background: var(--nav-hover-bg); }
+.nav-item.active {
+  color: var(--nav-active-ink);
+  background: var(--nav-active-bg);
+  border: var(--nav-active-border);
+  box-shadow: var(--nav-active-shadow);
+}
+.nav-item.active svg { opacity: 1; }
+
+/* 主题下拉（GitHub 风格：触发器 + 弹出菜单） */
+.theme-block { position: relative; margin-top: auto; }
+
+.theme-trigger {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  min-height: 40px; padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 12.5px; font-weight: 600;
+  color: var(--sidebar-ink);
+  background: var(--nav-hover-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctrl);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+.theme-trigger:hover { border-color: var(--line-strong); }
+.theme-trigger[aria-expanded="true"] { border-color: var(--primary); }
+
+.theme-dot {
+  width: 12px; height: 12px; flex: 0 0 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.theme-current { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.theme-trigger .chevron { transition: transform 140ms var(--ease); opacity: .75; }
+.theme-trigger[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+
+.theme-menu {
+  position: absolute; left: 0; right: 0; bottom: calc(100% + 8px);
+  z-index: 60;
+  padding: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card-hover);
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 60vh; overflow-y: auto;
+  transform-origin: bottom center;
+  animation: menu-in 140ms var(--ease);
+}
+.theme-menu[hidden] { display: none; }
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(4px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+.theme-menu-label {
+  padding: 6px 10px 4px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: var(--track-label); text-transform: var(--label-transform);
+  color: var(--ink-mute);
+}
+
+.theme-option {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 12.5px; font-weight: 600;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-ctrl);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.theme-option:hover { background: var(--surface-2); border-color: var(--line); }
+.theme-option[aria-checked="true"] {
+  background: var(--primary-tint);
+  border-color: var(--primary);
+}
+.theme-option .label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.theme-option .meta { font-size: 11px; font-weight: 500; color: var(--ink-mute); }
+.theme-option .check { flex: 0 0 14px; width: 14px; height: 14px; opacity: 0; color: var(--primary); }
+.theme-option[aria-checked="true"] .check { opacity: 1; }
+
+.theme-swatch { display: inline-flex; gap: 3px; flex: 0 0 auto; }
+.theme-swatch i { width: 8px; height: 8px; border-radius: 50%; display: block; }
+
+/* 主区 */
+.main { position: relative; z-index: 1; flex: 1; min-width: 0; padding: 32px 36px 64px; overflow-y: auto; }
+
+.page-head {
+  max-width: var(--page-max-width, 1080px);
+  margin: 0 auto 24px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: var(--head-rule);
+}
+.page-head h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2); font-weight: 600;
+  line-height: var(--lh-h2); letter-spacing: var(--track-h2);
+  color: var(--page-ink);
+}
+.page-head p {
+  margin-top: 6px;
+  font-size: var(--fs-body); font-weight: 400;
+  line-height: 1.7;
+  color: var(--page-ink-soft);
+  max-width: 64ch;
+}
+.actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 38px;
+  padding: var(--btn-pad);
+  font-family: var(--font-body);
+  font-size: var(--btn-fs); font-weight: 600;
+  letter-spacing: var(--btn-tracking);
+  text-transform: var(--btn-transform);
+  color: var(--btn-ink);
+  background: var(--btn-bg);
+  border: var(--btn-border);
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  box-shadow: var(--shadow-btn);
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+              border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  white-space: nowrap;
+}
+.btn:hover {
+  color: var(--btn-hover-ink);
+  background: var(--btn-hover-bg);
+  border: var(--btn-hover-border);
+  box-shadow: var(--shadow-btn-hover);
+}
+.btn:active { filter: brightness(.94); }
+.btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+.btn-primary { background: var(--primary); color: var(--primary-ink); border-color: transparent; }
+.btn-primary:hover { background: var(--primary-hover); color: var(--primary-ink); }
+.btn-danger { background: var(--danger); color: var(--danger-ink); border-color: transparent; }
+.btn-danger:hover { background: var(--danger-hover); color: var(--danger-ink); }
+.btn-accent { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn-accent:hover { filter: brightness(1.06); color: var(--accent-ink); }
+
+.nav-item:focus-visible, .btn:focus-visible, .theme-option:focus-visible,
+.theme-trigger:focus-visible, input:focus-visible, label:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/* 卡片 */
+.card {
+  max-width: var(--page-max-width, 1080px);
+  margin: 0 auto;
+  padding: var(--card-pad, 24px);
+  background: var(--surface);
+  color: var(--ink);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--dur-card) var(--ease), box-shadow var(--dur-card) var(--ease),
+              background-color var(--dur-card) var(--ease);
+}
+.card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-card-hover);
+}
+.card + .card { margin-top: 16px; }
+
+.grid-3, .grid-2 {
+  max-width: var(--page-max-width, 1080px);
+  margin: 0 auto;
+  display: grid; gap: 16px;
+}
+.grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); margin-top: 16px; align-items: stretch; }
+.grid-3 > .card, .grid-2 > .card { max-width: none; margin: 0; }
+.grid-2 > .card { display: flex; flex-direction: column; min-height: 0; }
+.grid-2 > .card > .list { flex: 1; min-height: 0; max-height: 46vh; overflow-y: auto; padding-right: 4px; }
+.grid-2 > .card > .list::-webkit-scrollbar { width: 8px; }
+.grid-2 > .card > .list::-webkit-scrollbar-thumb { background: var(--line-strong); border: 2px solid transparent; background-clip: content-box; border-radius: 999px; }
+.grid-2 > .card > .list { scrollbar-width: thin; }
+.disk-hero { margin: 4px 0 16px; }
+.disk-hero-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.disk-hero-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-num); font-weight: 600;
+  letter-spacing: var(--track-num);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--ink);
+}
+.disk-hero-abs { font-size: 13px; font-weight: 500; color: var(--ink-mute); }
+.disk-mini { display: flex; gap: 24px; margin-top: 14px; }
+.disk-mini-item { display: flex; flex-direction: column; gap: 2px; }
+.disk-mini-item b {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--ink);
+}
+.disk-mini-item span { font-size: 11px; font-weight: 500; color: var(--ink-mute); letter-spacing: .04em; }
+/* 文件迁移 */
+.card-foot-plain { margin: 0 0 10px; padding: 0; border-top: 0; }
+.row-action { flex: 0 0 auto; margin-left: 16px; display: flex; align-items: center; }
+.btn-sm { min-height: 30px; padding: 4px 14px; font-size: 12px; border-radius: var(--r-tag); }
+.mig-form { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
+.mig-field { display: flex; flex-direction: column; gap: 6px; }
+.mig-field label {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: var(--track-label); text-transform: var(--label-transform);
+  color: var(--ink-mute);
+}
+.mig-field .search, .mig-field select.search { width: 100%; min-width: 0; }
+.mig-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.mig-chip {
+  padding: 4px 10px;
+  font-family: var(--font-body); font-size: 11.5px; font-weight: 600;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-tag);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.mig-chip:hover { color: var(--ink); border-color: var(--line-strong); }
+.mig-plan {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctrl);
+  font-size: 12.5px; line-height: 1.7;
+}
+.mig-plan .kv { display: flex; justify-content: space-between; gap: 16px; }
+.mig-plan .kv span:first-child { color: var(--ink-mute); }
+.mig-plan ul { margin: 8px 0 0 16px; }
+.mig-plan li { margin-top: 2px; }
+.mig-plan .bad { color: var(--danger); }
+.mig-plan .warn { color: var(--warn); }
+.mig-job { margin-top: 14px; }
+.mig-job .stage { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; }
+
+.card-foot {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 12px; font-weight: 500;
+  color: var(--ink-mute);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+
+/* 指标卡 */
+.kpi { display: flex; flex-direction: column; }
+.kpi-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.kpi-chip {
+  width: 40px; height: 40px; flex: 0 0 40px;
+  display: grid; place-items: center;
+  color: var(--chip-ink);
+  background: var(--chip-bg);
+  border-radius: var(--chip-radius);
+}
+.kpi-chip svg { width: 18px; height: 18px; }
+.kpi-label {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; width: 100%;
+  font-size: var(--fs-label); font-weight: 600;
+  letter-spacing: var(--track-label); text-transform: var(--label-transform);
+  color: var(--ink-mute);
+}
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-num); font-weight: 600;
+  line-height: 1.12; letter-spacing: var(--track-num);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--ink);
+}
+.kpi-note { margin-top: 8px; font-size: 12px; font-weight: 400; line-height: 1.7; color: var(--ink-mute); }
+
+.pill {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  border-radius: var(--r-pill);
+  background: rgba(100,127,83,.16);
+  color: var(--ok);
+  border: 1px solid transparent;
+}
+.pill.warn { background: rgba(139,115,85,.16); color: var(--warn); }
+.pill.bad { background: rgba(122,52,40,.14); color: var(--danger); }
+.pill.neutral { background: var(--surface-2); color: var(--ink-soft); }
+
+.bar { margin-top: 12px; height: var(--bar-h); background: var(--bar-track); border-radius: var(--bar-radius); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--bar-fill); transition: width var(--dur-card) var(--ease); }
+.kpi.b2 .bar > i { background: var(--bar-fill-2); }
+.kpi.b3 .bar > i { background: var(--bar-fill-3); }
+
+/* 区块标题与列表 */
+.section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--ink);
+  padding-bottom: 8px;
+  border-bottom: var(--section-rule);
+  margin-bottom: 8px;
+}
+.section-title::before {
+  content: ""; width: 6px; height: 6px; flex: 0 0 6px;
+  background: var(--primary);
+  border-radius: var(--chip-radius);
+}
+
+.list { display: flex; flex-direction: column; gap: 6px; }
+
+.row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  background: var(--row-bg);
+  border: var(--row-border);
+  border-bottom: var(--row-sep);
+  border-radius: var(--row-radius);
+  transition: background-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+              border-color var(--dur) var(--ease);
+}
+.row:last-child { border-bottom: 0; }
+.row:hover { background: var(--row-hover-bg); box-shadow: var(--row-hover-shadow); }
+
+.row-main { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+.row-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.row-name {
+  font-size: var(--fs-rowname); font-weight: 600;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.row-desc {
+  font-size: var(--fs-rowdesc); font-weight: 400; line-height: 1.6;
+  color: var(--ink-mute);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70ch;
+}
+.row-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-rowvalue); font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap; color: var(--ink-soft); text-align: right;
+}
+
+.tag {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 1px 7px;
+  border-radius: var(--r-tag);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.tag.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
+.tag.busy { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+.tag.admin { color: var(--ink-soft); }
+
+/* 复选框 */
+input[type="checkbox"] {
+  appearance: none;
+  width: 20px; height: 20px; flex: 0 0 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--r-ctrl) * .6);
+  background: var(--surface);
+  cursor: pointer;
+  position: relative;
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+input[type="checkbox"]:hover { border-color: var(--primary); }
+input[type="checkbox"]:checked { background: var(--primary); border-color: var(--primary); }
+input[type="checkbox"]:checked::after {
+  content: ""; position: absolute; left: 6px; top: 2px;
+  width: 5px; height: 10px;
+  border: solid var(--primary-ink); border-width: 0 2px 2px 0;
+  transform: rotate(42deg);
+}
+input[type="checkbox"]:disabled { opacity: .4; cursor: not-allowed; }
+
+.select-all {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctrl);
+  font-size: 12.5px; font-weight: 600;
+  color: var(--ink-soft);
+}
+.select-all .sum { margin-left: auto; font-variant-numeric: lining-nums tabular-nums; color: var(--ink-soft); }
+
+.search {
+  min-width: 240px; flex: 1; min-height: 38px;
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-ctrl);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.search::placeholder { color: var(--ink-mute); opacity: 1; }
+.search:focus { outline: none; border-color: var(--primary); box-shadow: var(--focus-ring); }
+
+.empty {
+  padding: 28px 16px; text-align: center;
+  font-size: var(--fs-body); font-weight: 400;
+  line-height: 1.8;
+  color: var(--ink-mute);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-ctrl);
+  background: var(--surface-2);
+}
+.spinner {
+  display: inline-block; width: 13px; height: 13px; margin-right: 8px;
+  border: 2px solid var(--line-strong); border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 900ms linear infinite;
+  vertical-align: -2px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#toast-container {
+  position: fixed; right: 24px; bottom: 24px; z-index: 99;
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; max-width: 460px;
+  font-size: var(--fs-body); font-weight: 500; line-height: 1.6;
+  color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-ctrl);
+  box-shadow: var(--shadow-card-hover);
+  animation: toast-in var(--dur-card) var(--ease);
+}
+.toast::before { content: ""; width: 7px; height: 7px; flex: 0 0 7px; border-radius: var(--chip-radius); background: var(--primary); }
+.toast.success::before { background: var(--ok); }
+.toast.error::before { background: var(--danger); }
+.toast.warning::before { background: var(--warn); }
+@keyframes toast-in { from { opacity: 0; } to { opacity: 1; } }
+
+.panel { display: none; }
+.panel.active { display: block; animation: panel-in var(--dur-card) var(--ease); }
+@keyframes panel-in { from { opacity: 0; } to { opacity: 1; } }
+
+@media (max-width: 1180px) { .grid-3 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 960px) {
+  body { flex-direction: column; overflow: auto; }
+  .sidebar { width: 100%; flex: none; border-right: 0; border-bottom: var(--sidebar-border); }
+  .nav-list { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .nav-item { flex: 1 1 auto; justify-content: center; }
+  .theme-block { margin-top: 16px; }
+  .main { padding: 20px 16px 40px; overflow: visible; }
+  .grid-3, .grid-2 { grid-template-columns: 1fr; min-height: 0; }
+  .grid-2 > .card > .list { max-height: 50vh; }
+  .card { padding: 16px; }
+  .actions { width: 100%; }
+  .actions .btn { flex: 1 1 auto; }
+  .search { min-width: 0; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+</style>
+</head>
+<body data-impeccable-ignore="dark-glow">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">W</div>
+      <div class="brand-text">
+        <h1>WinSweep</h1>
+        <p>Rust Engine 0.1.0</p>
+      </div>
+    </div>
+
+    <nav aria-label="主导航">
+      <ul class="nav-list">
+        <li class="nav-item active" id="nav-status" onclick="switchTab('status', this)" tabindex="0" onkeydown="navKey(event,'status')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          状态看板
+        </li>
+        <li class="nav-item" id="nav-clean" onclick="switchTab('clean', this)" tabindex="0" onkeydown="navKey(event,'clean')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          深度清理
+        </li>
+        <li class="nav-item" id="nav-purge" onclick="switchTab('purge', this)" tabindex="0" onkeydown="navKey(event,'purge')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+          开发产物瘦身
+        </li>
+        <li class="nav-item" id="nav-installer" onclick="switchTab('installer', this)" tabindex="0" onkeydown="navKey(event,'installer')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          安装包清理
+        </li>
+        <li class="nav-item" id="nav-analyze" onclick="switchTab('analyze', this)" tabindex="0" onkeydown="navKey(event,'analyze')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          磁盘大文件分析
+        </li>
+        <li class="nav-item" id="nav-optimize" onclick="switchTab('optimize', this)" tabindex="0" onkeydown="navKey(event,'optimize')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          系统优化
+        </li>
+        <li class="nav-item" id="nav-uninstall" onclick="switchTab('uninstall', this)" tabindex="0" onkeydown="navKey(event,'uninstall')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+          软件卸载分析
+        </li>
+        <li class="nav-item" id="nav-migrate" onclick="switchTab('migrate', this)" tabindex="0" onkeydown="navKey(event,'migrate')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-3-3m3 3l-3 3M16 17H4m0 0l3-3m-3 3l3 3"/></svg>
+          文件迁移
+        </li>
+      </ul>
+    </nav>
+
+    <div class="theme-block">
+      <button type="button" class="theme-trigger" id="theme-trigger"
+              aria-haspopup="menu" aria-expanded="false" aria-controls="theme-menu"
+              onclick="toggleThemeMenu(event)" onkeydown="themeTriggerKey(event)">
+        <span class="theme-dot" id="theme-dot" aria-hidden="true"></span>
+        <span class="theme-current" id="theme-current">暗黑学院</span>
+        <svg class="chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 15l6-6 6 6"/></svg>
+      </button>
+      <div class="theme-menu" id="theme-menu" role="menu" aria-label="选择界面主题" hidden></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section id="panel-status" class="panel active" aria-label="状态看板">
+      <div class="page-head">
+        <div>
+          <h2>实时状态看板</h2>
+          <p id="host-info">正在读取系统指标…</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btn-refresh-status" onclick="fetchStatus()">刷新指标</button>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card kpi">
+          <div class="kpi-top">
+            <span class="kpi-chip"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></span>
+            <span class="kpi-label"><span>健康评分</span><span class="pill" id="health-badge">良好</span></span>
+          </div>
+          <div class="kpi-value" id="health-score">--</div>
+          <div class="kpi-note">由 CPU、内存与磁盘余量合成</div>
+        </div>
+        <div class="card kpi b2">
+          <div class="kpi-top">
+            <span class="kpi-chip"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M3 9h2m-2 6h2m14-6h2m-2 6h2M7 7h10v10H7z"/></svg></span>
+            <span class="kpi-label"><span>CPU 利用率</span><span class="pill neutral" id="cpu-cores-count">-- 核心</span></span>
+          </div>
+          <div class="kpi-value" id="cpu-usage">--%</div>
+          <div class="bar" role="presentation"><i id="cpu-bar"></i></div>
+        </div>
+        <div class="card kpi b3">
+          <div class="kpi-top">
+            <span class="kpi-chip"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H6a2 2 0 00-2 2z"/></svg></span>
+            <span class="kpi-label"><span>内存占用</span><span class="pill neutral" id="mem-percent">--%</span></span>
+          </div>
+          <div class="kpi-value" id="mem-used">-- GB</div>
+          <div class="bar" role="presentation"><i id="mem-bar"></i></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="section-title">磁盘空间利用</h3>
+          <div class="disk-hero">
+            <div class="disk-hero-row">
+              <span class="disk-hero-value" id="disk-used-pct">--%</span>
+              <span class="disk-hero-abs" id="disk-used-abs">--</span>
+            </div>
+            <div class="bar" role="presentation"><i id="disk-hero-bar"></i></div>
+            <div class="disk-mini">
+              <div class="disk-mini-item"><b id="disk-free">--</b><span>可用空间</span></div>
+              <div class="disk-mini-item"><b id="disk-cleanable">--</b><span>可清理估算</span></div>
+            </div>
+          </div>
+          <div id="disk-list" class="list"></div>
+          <div class="card-foot"><span id="disk-summary">—</span><span id="disk-total">—</span></div>
+        </div>
+        <div class="card">
+          <h3 class="section-title">高负载活跃进程</h3>
+          <div id="proc-list" class="list"></div>
+          <div class="card-foot"><span id="proc-summary">按 CPU 占用排序</span><span id="proc-count">—</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-clean" class="panel" aria-label="深度清理">
+      <div class="page-head">
+        <div>
+          <h2>深度系统清理</h2>
+          <p>清理临时文件、浏览器缓存与缩略图数据库。勾选分类后只清所选内容，被占用的文件会自动跳过。</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btn-scan-clean" onclick="scanClean()">扫描可清理项</button>
+          <button class="btn btn-danger" id="btn-exec-clean" onclick="executeClean()">清理勾选分类</button>
+          <button class="btn btn-accent" id="btn-admin-clean" onclick="executeAdminClean()">管理员清理</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="select-all">
+          <input type="checkbox" id="check-all-clean" checked onchange="toggleAllClean(this.checked)" />
+          <label for="check-all-clean">全选分类</label>
+          <span class="sum" id="clean-selected-summary">已选 0 项</span>
+        </div>
+        <div id="clean-categories" class="list"></div>
+        <p class="kpi-note" style="margin-top:12px;">被程序占用的文件会自动跳过，不会强行删除；每次清理都写入 operations.log。</p>
+      </div>
+    </section>
+
+    <section id="panel-purge" class="panel" aria-label="开发产物瘦身">
+      <div class="page-head">
+        <div>
+          <h2>开发构建产物瘦身</h2>
+          <p>识别 node_modules、target、.venv、bin、obj。7 天内仍在改动的工程默认不勾选，避免误删。</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btn-scan-purge" onclick="scanPurge()">扫描工作区</button>
+          <button class="btn btn-danger" id="btn-exec-purge" onclick="executePurge()">瘦身勾选产物</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="select-all">
+          <input type="checkbox" id="check-all-purge" onchange="toggleAllPurge(this.checked)" />
+          <label for="check-all-purge">全选产物</label>
+          <span class="sum" id="purge-selected-summary">已选 0 项</span>
+        </div>
+        <div id="purge-list" class="list"></div>
+      </div>
+    </section>
+
+    <section id="panel-installer" class="panel" aria-label="安装包清理">
+      <div class="page-head">
+        <div>
+          <h2>安装包冗余清理</h2>
+          <p>查找下载目录与桌面遗留的 exe、msi、msix、iso 安装镜像，勾选后移入回收站。</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btn-scan-installer" onclick="scanInstaller()">扫描安装包</button>
+          <button class="btn btn-danger" id="btn-exec-installer" onclick="executeInstallerClean()">清理勾选安装包</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="select-all">
+          <input type="checkbox" id="check-all-installer" checked onchange="toggleAllInstaller(this.checked)" />
+          <label for="check-all-installer">全选安装包</label>
+          <span class="sum" id="installer-selected-summary">已选 0 项</span>
+        </div>
+        <div id="installer-list" class="list"></div>
+      </div>
+    </section>
+
+    <section id="panel-analyze" class="panel" aria-label="磁盘大文件分析">
+      <div class="page-head">
+        <div>
+          <h2>磁盘大文件分析</h2>
+          <p>用最小堆扫描目标目录，列出体积最大的 15 个文件。</p>
+        </div>
+        <div class="actions">
+          <input type="text" id="analyze-path-input" class="search" placeholder="输入要分析的目录，留空表示用户目录" aria-label="要分析的目录路径" />
+          <button class="btn" id="btn-run-analyze" onclick="runAnalyze()">开始分析</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="select-all" style="background:transparent;border-color:transparent;">
+          <span id="analyze-summary">扫描状态：就绪</span>
+          <span class="sum" id="analyze-total-size">0 B</span>
+        </div>
+        <div id="analyze-list" class="list"></div>
+      </div>
+    </section>
+
+    <section id="panel-optimize" class="panel" aria-label="系统优化">
+      <div class="page-head">
+        <div>
+          <h2>系统与网络优化</h2>
+          <p>刷新 DNS 解析缓存、ARP 表与资源管理器图标缓存。</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btn-run-optimize" onclick="runOptimize()">执行优化任务</button>
+        </div>
+      </div>
+      <div class="card">
+        <div id="optimize-results" class="list"></div>
+      </div>
+    </section>
+
+    <section id="panel-uninstall" class="panel" aria-label="软件卸载分析">
+      <div class="page-head">
+        <div>
+          <h2>已安装应用分析</h2>
+          <p>读取注册表应用清单，按占用体积从大到小排列。可直接启动卸载程序，并清理卸载后的残留目录。</p>
+        </div>
+        <div class="actions">
+          <input type="text" id="app-search" class="search" placeholder="搜索应用或发行商" oninput="loadApps()" aria-label="搜索应用" />
+          <button class="btn" id="btn-load-apps" onclick="loadApps()">刷新列表</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-foot card-foot-plain">
+          <span id="app-count">—</span>
+          <span>卸载由应用自带的卸载程序完成，WinSweep 只负责启动</span>
+        </div>
+        <div id="app-list" class="list"></div>
+      </div>
+    </section>
+
+    <section id="panel-migrate" class="panel" aria-label="文件迁移">
+      <div class="page-head">
+        <div>
+          <h2>文件迁移</h2>
+          <p>把占空间的大文件夹搬到还有余量的盘：先复制 → 逐项校验（文件数 + 字节）→ 才替换为目录联接。原路径保持不变，PATH、快捷方式、注册表引用继续有效。</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btn-mig-volumes" onclick="loadMigrateVolumes()">刷新磁盘</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="mig-form">
+          <div class="mig-field">
+            <label for="mig-source">要迁移的文件夹</label>
+            <input type="text" id="mig-source" class="search" placeholder="例如 C:\Users\你\Downloads" />
+          </div>
+          <div class="mig-field">
+            <label for="mig-target">迁移到</label>
+            <select id="mig-target" class="search"></select>
+          </div>
+        </div>
+        <div class="mig-chips" id="mig-chips"></div>
+        <div class="actions" style="margin-top:12px;">
+          <button class="btn" id="btn-mig-plan" onclick="planMigrate()">预检</button>
+          <button class="btn btn-danger" id="btn-mig-run" onclick="startMigrate()" disabled>开始迁移</button>
+        </div>
+        <div id="mig-plan-box" class="mig-plan" hidden></div>
+        <div id="mig-job" class="mig-job" hidden></div>
+        <p class="kpi-note" style="margin-top:12px;">迁移前请关闭正在使用该文件夹的程序；被占用的文件会导致复制失败，此时不会改动任何源数据。</p>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">迁移记录</h3>
+        <div id="mig-list" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+/* ============================================================
+   主题系统：新增主题只需在此登记 + 在 CSS 里加一组令牌
+   ============================================================ */
+var THEMES = [
+  { id: 'academia', label: '暗黑学院', swatch: ['#3d2b1f', '#8b7355', '#f5f0e1'], dark: true },
+  { id: 'soft',     label: '柔和现代', swatch: ['#3F5BD8', '#3FBFA0', '#EEF3FB'], dark: false },
+  { id: 'fluent',   label: 'Windows 原生', swatch: ['#0F6CBD', '#EBF3FC', '#F3F3F3'], dark: false },
+  { id: 'swiss',    label: '极简瑞士', swatch: ['#111111', '#D0021B', '#FFFFFF'], dark: false },
+  { id: 'oled',     label: '深色 OLED', swatch: ['#22D3A7', '#FFB020', '#0B0B0C'], dark: true }
+];
+var THEME_IDS = THEMES.map(function (t) { return t.id; });
+
+function themeMeta(id) {
+  return THEMES.filter(function (x) { return x.id === id; })[0] || THEMES[0];
+}
+
+/* 应用主题：同步 <html data-theme>、触发器文案与色点、菜单选中态 */
+function applyTheme(id) {
+  if (THEME_IDS.indexOf(id) === -1) id = 'academia';
+  var t = themeMeta(id);
+  document.documentElement.setAttribute('data-theme', id);
+  document.documentElement.style.colorScheme = t.dark ? 'dark' : 'light';
+  var meta = document.querySelector('meta[name="color-scheme"]');
+  if (meta) meta.setAttribute('content', t.dark ? 'dark' : 'light');
+
+  var cur = document.getElementById('theme-current');
+  if (cur) cur.innerText = t.label;
+  var dot = document.getElementById('theme-dot');
+  if (dot) { dot.style.background = t.swatch[0]; dot.style.boxShadow = '0 0 0 2px ' + t.swatch[1]; }
+
+  document.querySelectorAll('.theme-option').forEach(function (el) {
+    el.setAttribute('aria-checked', el.dataset.theme === id ? 'true' : 'false');
+  });
+  try { localStorage.setItem('winsweep-theme', id); } catch (e) {}
+}
+
+/* 菜单内容（GitHub 风格：带分组标题 + 色板 + 勾选） */
+function renderThemeMenu() {
+  var menu = document.getElementById('theme-menu');
+  if (!menu) return;
+  var items = THEMES.map(function (t) {
+    return '<button type="button" class="theme-option" role="menuitemradio" aria-checked="false"' +
+      ' data-theme="' + t.id + '" tabindex="-1" onclick="pickTheme(\'' + t.id + '\')">' +
+      '<span class="theme-swatch" aria-hidden="true">' +
+        t.swatch.map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') +
+      '</span>' +
+      '<span class="label">' + t.label + '</span>' +
+      '<span class="meta">' + (t.dark ? '深色' : '浅色') + '</span>' +
+      '<svg class="check" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' +
+    '</button>';
+  }).join('');
+  menu.innerHTML = '<p class="theme-menu-label">界面主题</p>' + items;
+}
+
+function openThemeMenu() {
+  var menu = document.getElementById('theme-menu');
+  var trigger = document.getElementById('theme-trigger');
+  if (!menu || !trigger) return;
+  menu.hidden = false;
+  trigger.setAttribute('aria-expanded', 'true');
+  var current = menu.querySelector('.theme-option[aria-checked="true"]') || menu.querySelector('.theme-option');
+  if (current) { current.tabIndex = 0; current.focus(); }
+}
+
+function closeThemeMenu(restoreFocus) {
+  var menu = document.getElementById('theme-menu');
+  var trigger = document.getElementById('theme-trigger');
+  if (!menu || menu.hidden) return;
+  menu.hidden = true;
+  if (trigger) {
+    trigger.setAttribute('aria-expanded', 'false');
+    if (restoreFocus) trigger.focus();
+  }
+}
+
+function toggleThemeMenu(ev) {
+  if (ev) ev.stopPropagation();
+  var menu = document.getElementById('theme-menu');
+  if (!menu) return;
+  if (menu.hidden) openThemeMenu(); else closeThemeMenu(true);
+}
+
+function pickTheme(id) {
+  applyTheme(id);
+  closeThemeMenu(true);
+}
+
+/* 触发器键盘：Enter/Space/↓ 打开 */
+function themeTriggerKey(ev) {
+  if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    openThemeMenu();
+  } else if (ev.key === 'Escape') {
+    closeThemeMenu(false);
+  }
+}
+
+/* 菜单内键盘：↑↓ 移动，Home/End，Enter 选择，Esc/Tab 关闭 */
+function themeMenuKey(ev) {
+  var menu = document.getElementById('theme-menu');
+  if (!menu || menu.hidden) return;
+  var options = Array.prototype.slice.call(menu.querySelectorAll('.theme-option'));
+  var idx = options.indexOf(document.activeElement);
+  if (ev.key === 'ArrowDown') {
+    ev.preventDefault();
+    var next = options[(idx + 1) % options.length];
+    options.forEach(function (o) { o.tabIndex = -1; });
+    next.tabIndex = 0; next.focus();
+  } else if (ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    var prev = options[(idx - 1 + options.length) % options.length];
+    options.forEach(function (o) { o.tabIndex = -1; });
+    prev.tabIndex = 0; prev.focus();
+  } else if (ev.key === 'Home' || ev.key === 'End') {
+    ev.preventDefault();
+    var target = ev.key === 'Home' ? options[0] : options[options.length - 1];
+    options.forEach(function (o) { o.tabIndex = -1; });
+    target.tabIndex = 0; target.focus();
+  } else if (ev.key === 'Escape') {
+    ev.preventDefault();
+    closeThemeMenu(true);
+  } else if (ev.key === 'Tab') {
+    closeThemeMenu(false);
+  }
+}
+
+document.addEventListener('keydown', themeMenuKey);
+
+/* 点击外部关闭；点击触发器由 toggleThemeMenu 处理 */
+document.addEventListener('click', function (e) {
+  var block = document.querySelector('.theme-block');
+  if (block && !block.contains(e.target)) closeThemeMenu(false);
+});
+
+(function initTheme() {
+  var saved = 'academia';
+  try { saved = localStorage.getItem('winsweep-theme') || 'academia'; } catch (e) {}
+  renderThemeMenu();
+  applyTheme(saved);
+})();
+
+/* ---------------- 工具 ---------------- */
+function formatBytes(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  var k = 1024, sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  var i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* ---------------- Toast ---------------- */
+function showToast(message, type) {
+  var c = document.getElementById('toast-container');
+  if (!c) return;
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type || 'info');
+  t.setAttribute('role', 'status');
+  t.innerText = message;
+  c.appendChild(t);
+  setTimeout(function () {
+    t.style.transition = 'opacity 400ms ease';
+    t.style.opacity = '0';
+    setTimeout(function () { t.remove(); }, 420);
+  }, 4400);
+}
+
+/* ---------------- 导航 ---------------- */
+function navKey(e, tabId) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    switchTab(tabId, e.currentTarget);
+  }
+}
+function switchTab(tabId, el) {
+  document.querySelectorAll('.nav-item').forEach(function (n) { n.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
+  var panel = document.getElementById('panel-' + tabId);
+  if (panel) panel.classList.add('active');
+  var nav = el || document.getElementById('nav-' + tabId);
+  if (nav) nav.classList.add('active');
+
+  if (tabId === 'clean') scanClean();
+  if (tabId === 'purge') scanPurge();
+  if (tabId === 'installer') scanInstaller();
+  if (tabId === 'uninstall') loadApps();
+  if (tabId === 'migrate') { loadMigrateVolumes(); loadMigrateList(); }
+}
+
+/* ---------------- 状态看板 ---------------- */
+function fetchStatus() {
+  fetch('/api/status').then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (d) {
+    document.getElementById('host-info').innerText =
+      d.host_name + ' · ' + d.os_name + ' ' + d.os_version + ' · 已运行 ' + Math.floor(d.uptime_seconds / 3600) + ' 小时';
+    document.getElementById('health-score').innerText = d.health_score;
+    document.getElementById('cpu-usage').innerText = d.cpu_total_usage.toFixed(1) + '%';
+    document.getElementById('cpu-bar').style.width = Math.min(100, d.cpu_total_usage) + '%';
+    document.getElementById('cpu-cores-count').innerText = d.cpu_cores.length + ' 核心';
+
+    var badge = document.getElementById('health-badge');
+    if (d.health_score >= 80) { badge.className = 'pill'; badge.innerText = '良好'; }
+    else if (d.health_score >= 60) { badge.className = 'pill warn'; badge.innerText = '一般'; }
+    else { badge.className = 'pill bad'; badge.innerText = '需关注'; }
+
+    var usedGB = (d.memory_used / 1024 / 1024 / 1024).toFixed(1);
+    var totalGB = (d.memory_total / 1024 / 1024 / 1024).toFixed(1);
+    document.getElementById('mem-used').innerText = usedGB + ' / ' + totalGB + ' GB';
+    document.getElementById('mem-percent').innerText = d.memory_usage_percent.toFixed(1) + '%';
+    document.getElementById('mem-bar').style.width = Math.min(100, d.memory_usage_percent) + '%';
+
+    var disks = d.disks || [];
+    var usedAll = 0, totalAll = 0;
+    disks.forEach(function (x) { usedAll += x.used_space; totalAll += x.total_space; });
+    document.getElementById('disk-list').innerHTML = disks.map(function (x) {
+      var pct = x.usage_percent;
+      var cls = pct >= 90 ? 'tag busy' : 'tag ok';
+      return '<div class="row">' +
+        '<div class="row-main"><div class="row-text">' +
+          '<span class="row-name">驱动器 ' + escapeHtml(x.mount_point) + ' <span class="' + cls + '">' + pct.toFixed(1) + '%</span></span>' +
+          '<span class="row-desc">可用 ' + formatBytes(x.available_space) + ' / 共 ' + formatBytes(x.total_space) + '</span>' +
+          '<div class="bar" style="margin-top:8px;" role="presentation"><i style="width:' + Math.min(100, pct) + '%;"></i></div>' +
+        '</div></div>' +
+        '<span class="row-value">' + formatBytes(x.used_space) + '</span>' +
+      '</div>';
+    }).join('') || '<div class="empty">暂无磁盘数据</div>';
+
+    var pctAll = totalAll > 0 ? (usedAll / totalAll) * 100 : 0;
+    var heroPct = document.getElementById('disk-used-pct');
+    if (heroPct) heroPct.innerText = pctAll.toFixed(1) + '%';
+    var heroAbs = document.getElementById('disk-used-abs');
+    if (heroAbs) heroAbs.innerText = formatBytes(usedAll) + ' / ' + formatBytes(totalAll);
+    var heroBar = document.getElementById('disk-hero-bar');
+    if (heroBar) heroBar.style.width = Math.min(100, pctAll) + '%';
+
+    var ds = document.getElementById('disk-summary');
+    if (ds) ds.innerText = '共 ' + disks.length + ' 个分区 · 已用 ' + formatBytes(usedAll) + ' / 共 ' + formatBytes(totalAll);
+    var dt = document.getElementById('disk-total');
+    if (dt) dt.innerText = totalAll > 0 ? '占用 ' + ((usedAll / totalAll) * 100).toFixed(1) + '%' : '—';
+
+    var freeEl = document.getElementById('disk-free');
+    if (freeEl) freeEl.innerText = formatBytes(Math.max(0, totalAll - usedAll));
+
+    if (Date.now() - (window.__cleanFetchAt || 0) > 60000) {
+      window.__cleanFetchAt = Date.now();
+      fetch('/api/clean/scan').then(function (r) { return r.json(); }).then(function (cats) {
+        var sum = 0;
+        (cats || []).forEach(function (c) { sum += c.total_size || 0; });
+        var el = document.getElementById('disk-cleanable');
+        if (el) el.innerText = formatBytes(sum);
+      }).catch(function () {
+        var el = document.getElementById('disk-cleanable');
+        if (el) el.innerText = '—';
+      });
+    }
+
+    var procs = d.top_processes || [];
+    document.getElementById('proc-list').innerHTML = procs.map(function (p) {
+      return '<div class="row">' +
+        '<div class="row-main"><div class="row-text">' +
+          '<span class="row-name">' + escapeHtml(p.name) + '</span>' +
+          '<span class="row-desc">PID ' + p.pid + ' · 内存 ' + formatBytes(p.memory_bytes) + '</span>' +
+        '</div></div>' +
+        '<span class="row-value">CPU ' + p.cpu_usage.toFixed(1) + '%</span>' +
+      '</div>';
+    }).join('') || '<div class="empty">暂无进程数据</div>';
+
+    var pc = document.getElementById('proc-count');
+    if (pc) pc.innerText = '前 ' + procs.length + ' 名';
+  }).catch(function (e) {
+    console.error('status failed', e);
+  });
+}
+
+/* ---------------- 深度清理 ---------------- */
+var CLEAN_NAME_CN = {
+  user_temp: '用户临时文件',
+  sys_temp: '系统临时文件',
+  windows_update: 'Windows 更新缓存',
+  edge_cache: 'Edge 缓存',
+  chrome_cache: 'Chrome 缓存',
+  thumbnails: '资源管理器缩略图缓存'
+};
+var CLEAN_DESC_CN = {
+  user_temp: '应用运行产生的临时缓存文件',
+  sys_temp: '系统级临时运行文件',
+  windows_update: '已下载的 Windows 更新安装包',
+  edge_cache: 'Edge 缓存的网页资源与媒体',
+  chrome_cache: 'Chrome 缓存的网页资源与媒体',
+  thumbnails: '资源管理器缩略图数据库'
+};
+function cleanDesc(id, fallback) { return CLEAN_DESC_CN[id] || fallback || ''; }
+function cleanName(id, fallback) { return CLEAN_NAME_CN[id] || fallback || ''; }
+
+function toggleAllClean(checked) {
+  document.querySelectorAll('.clean-item-check').forEach(function (el) { el.checked = checked; });
+  updateCleanSelectedSummary();
+}
+function updateCleanSelectedSummary() {
+  var checks = Array.prototype.slice.call(document.querySelectorAll('.clean-item-check:checked'));
+  var bytes = 0;
+  checks.forEach(function (c) { bytes += parseInt(c.dataset.size || '0', 10); });
+  var s = document.getElementById('clean-selected-summary');
+  if (s) s.innerText = '已选 ' + checks.length + ' 项 · ' + formatBytes(bytes);
+}
+function scanClean() {
+  var list = document.getElementById('clean-categories');
+  var btn = document.getElementById('btn-scan-clean');
+  list.innerHTML = '<div class="empty"><span class="spinner"></span>正在扫描缓存与日志…</div>';
+  if (btn) btn.disabled = true;
+  fetch('/api/clean/scan').then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (data) {
+    list.innerHTML = data.map(function (c) {
+      var adminTag = c.requires_admin ? '<span class="tag admin">需管理员</span>' : '';
+      return '<div class="row">' +
+        '<div class="row-main">' +
+          '<input type="checkbox" class="clean-item-check" data-id="' + escapeHtml(c.id) + '" data-size="' + c.total_size + '" checked onchange="updateCleanSelectedSummary()" aria-label="选择 ' + escapeHtml(cleanName(c.id, c.name)) + '" />' +
+          '<div class="row-text">' +
+            '<span class="row-name">' + escapeHtml(cleanName(c.id, c.name)) + ' ' + adminTag + '</span>' +
+            '<span class="row-desc">' + escapeHtml(cleanDesc(c.id, c.description)) + ' · ' + c.total_count + ' 项</span>' +
+          '</div>' +
+        '</div>' +
+        '<span class="row-value">' + formatBytes(c.total_size) + '</span>' +
+      '</div>';
+    }).join('') || '<div class="empty">没有可清理的项目</div>';
+    updateCleanSelectedSummary();
+  }).catch(function (e) {
+    list.innerHTML = '<div class="empty">扫描失败：' + escapeHtml(e.message) + '。请重试或重启 WinSweep。</div>';
+    showToast('扫描失败：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+function executeClean() {
+  var selected = Array.prototype.slice.call(document.querySelectorAll('.clean-item-check:checked')).map(function (el) { return el.dataset.id; });
+  if (selected.length === 0) { showToast('先勾选至少一个清理分类', 'warning'); return; }
+  if (!confirm('清理已勾选的 ' + selected.length + ' 个分类？')) return;
+  var btn = document.getElementById('btn-exec-clean');
+  if (btn) btn.disabled = true;
+  fetch('/api/clean/execute', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categories: selected })
+  }).then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (d) {
+    if (d.freed_count > 0) showToast('已释放 ' + formatBytes(d.freed_bytes) + '，共 ' + d.freed_count + ' 个文件', 'success');
+    else showToast('没有可释放的文件：可能已被程序占用，稍后再试', 'info');
+    scanClean();
+  }).catch(function (e) {
+    showToast('清理未完成：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+function executeAdminClean() {
+  if (!confirm('将以管理员权限清理 C:\\Windows\\Temp 与更新缓存，Windows 会弹出 UAC 确认，继续吗？')) return;
+  var btn = document.getElementById('btn-admin-clean');
+  if (btn) btn.disabled = true;
+  fetch('/api/clean/admin', { method: 'POST' }).then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    showToast('已提交管理员清理，正在刷新结果…', 'info');
+    setTimeout(scanClean, 2400);
+  }).catch(function (e) {
+    showToast('提权清理未完成：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+
+/* ---------------- 开发产物瘦身 ---------------- */
+var cachedPurgeData = [];
+function toggleAllPurge(checked) {
+  document.querySelectorAll('.purge-item-check').forEach(function (el) { el.checked = checked; });
+  updatePurgeSelectedSummary();
+}
+function updatePurgeSelectedSummary() {
+  var checks = Array.prototype.slice.call(document.querySelectorAll('.purge-item-check:checked'));
+  var bytes = 0;
+  checks.forEach(function (c) { bytes += parseInt(c.dataset.size || '0', 10); });
+  var s = document.getElementById('purge-selected-summary');
+  if (s) s.innerText = '已选 ' + checks.length + ' 项 · ' + formatBytes(bytes);
+}
+function scanPurge() {
+  var list = document.getElementById('purge-list');
+  var btn = document.getElementById('btn-scan-purge');
+  list.innerHTML = '<div class="empty"><span class="spinner"></span>正在扫描构建产物…</div>';
+  if (btn) btn.disabled = true;
+  fetch('/api/purge/scan').then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (data) {
+    cachedPurgeData = data;
+    if (!data.length) {
+      list.innerHTML = '<div class="empty">常见工作区里没有可瘦身的构建产物</div>';
+      updatePurgeSelectedSummary();
+      return;
+    }
+    list.innerHTML = data.map(function (item) {
+      var tag = item.is_recently_active
+        ? '<span class="tag busy">活跃 &lt;7 天</span>'
+        : '<span class="tag ok">可瘦身</span>';
+      var checked = item.is_recently_active ? '' : 'checked';
+      return '<div class="row">' +
+        '<div class="row-main">' +
+          '<input type="checkbox" class="purge-item-check" data-path="' + escapeHtml(item.path) + '" data-size="' + item.size + '" ' + checked + ' onchange="updatePurgeSelectedSummary()" aria-label="选择 ' + escapeHtml(item.project_name) + ' 的 ' + escapeHtml(item.artifact_type) + '" />' +
+          '<div class="row-text">' +
+            '<span class="row-name">' + escapeHtml(item.project_name) + ' · ' + escapeHtml(item.artifact_type) + ' ' + tag + '</span>' +
+            '<span class="row-desc" title="' + escapeHtml(item.path) + '">' + escapeHtml(item.path) + ' · ' + item.last_modified_days_ago + ' 天前改动</span>' +
+          '</div>' +
+        '</div>' +
+        '<span class="row-value">' + formatBytes(item.size) + '</span>' +
+      '</div>';
+    }).join('');
+    updatePurgeSelectedSummary();
+  }).catch(function (e) {
+    list.innerHTML = '<div class="empty">扫描失败：' + escapeHtml(e.message) + '。请重试或重启 WinSweep。</div>';
+    showToast('扫描失败：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+function executePurge() {
+  var selected = Array.prototype.slice.call(document.querySelectorAll('.purge-item-check:checked')).map(function (el) { return el.dataset.path; });
+  if (selected.length === 0) { showToast('先勾选至少一个构建产物', 'warning'); return; }
+  if (!confirm('把勾选的 ' + selected.length + ' 个产物移入回收站？')) return;
+  var btn = document.getElementById('btn-exec-purge');
+  if (btn) btn.disabled = true;
+  fetch('/api/purge/execute', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paths: selected })
+  }).then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (d) {
+    if (d.freed_count > 0) showToast('已瘦身 ' + d.freed_count + ' 项，释放 ' + formatBytes(d.freed_bytes), 'success');
+    else showToast('未删除任何产物：可能已被移除或被占用', 'warning');
+    scanPurge();
+  }).catch(function (e) {
+    showToast('瘦身未完成：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+
+/* ---------------- 安装包清理 ---------------- */
+var cachedInstallers = [];
+function toggleAllInstaller(checked) {
+  document.querySelectorAll('.installer-item-check').forEach(function (el) { el.checked = checked; });
+  updateInstallerSelectedSummary();
+}
+function updateInstallerSelectedSummary() {
+  var checks = Array.prototype.slice.call(document.querySelectorAll('.installer-item-check:checked'));
+  var bytes = 0;
+  checks.forEach(function (c) { bytes += parseInt(c.dataset.size || '0', 10); });
+  var s = document.getElementById('installer-selected-summary');
+  if (s) s.innerText = '已选 ' + checks.length + ' 项 · ' + formatBytes(bytes);
+}
+function scanInstaller() {
+  var list = document.getElementById('installer-list');
+  var btn = document.getElementById('btn-scan-installer');
+  list.innerHTML = '<div class="empty"><span class="spinner"></span>正在查找安装镜像…</div>';
+  if (btn) btn.disabled = true;
+  fetch('/api/installer/scan').then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (data) {
+    cachedInstallers = data;
+    if (!data.length) {
+      list.innerHTML = '<div class="empty">没有发现 5 MB 以上的安装包</div>';
+      updateInstallerSelectedSummary();
+      return;
+    }
+    list.innerHTML = data.map(function (item) {
+      return '<div class="row">' +
+        '<div class="row-main">' +
+          '<input type="checkbox" class="installer-item-check" data-path="' + escapeHtml(item.path) + '" data-size="' + item.size + '" checked onchange="updateInstallerSelectedSummary()" aria-label="选择 ' + escapeHtml(item.file_name) + '" />' +
+          '<div class="row-text">' +
+            '<span class="row-name">' + escapeHtml(item.file_name) + '</span>' +
+            '<span class="row-desc">' + escapeHtml(item.source_location) + ' · .' + escapeHtml(item.extension) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<span class="row-value">' + formatBytes(item.size) + '</span>' +
+      '</div>';
+    }).join('');
+    updateInstallerSelectedSummary();
+  }).catch(function (e) {
+    list.innerHTML = '<div class="empty">扫描失败：' + escapeHtml(e.message) + '。请重试或重启 WinSweep。</div>';
+    showToast('扫描失败：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+function executeInstallerClean() {
+  var selected = Array.prototype.slice.call(document.querySelectorAll('.installer-item-check:checked')).map(function (el) { return el.dataset.path; });
+  if (selected.length === 0) { showToast('先勾选至少一个安装包', 'warning'); return; }
+  if (!confirm('把勾选的 ' + selected.length + ' 个安装包移入回收站？')) return;
+  var btn = document.getElementById('btn-exec-installer');
+  if (btn) btn.disabled = true;
+  fetch('/api/installer/execute', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paths: selected })
+  }).then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (d) {
+    if (d.freed_count > 0) showToast('已清理 ' + d.freed_count + ' 个安装包，释放 ' + formatBytes(d.freed_bytes), 'success');
+    else showToast('未删除任何安装包：可能已被移除或被占用', 'warning');
+    scanInstaller();
+  }).catch(function (e) {
+    showToast('清理未完成：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+
+/* ---------------- 大文件分析 ---------------- */
+function runAnalyze() {
+  var list = document.getElementById('analyze-list');
+  var summary = document.getElementById('analyze-summary');
+  var totalEl = document.getElementById('analyze-total-size');
+  var btn = document.getElementById('btn-run-analyze');
+  var p = document.getElementById('analyze-path-input').value.trim();
+  list.innerHTML = '<div class="empty"><span class="spinner"></span>正在扫描大文件…</div>';
+  if (btn) btn.disabled = true;
+  var q = p ? '?path=' + encodeURIComponent(p) : '';
+  fetch('/api/analyze' + q).then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (d) {
+    summary.innerText = '已扫描 ' + d.total_scanned_files + ' 个文件';
+    totalEl.innerText = formatBytes(d.total_scanned_bytes);
+    if (!d.largest_files || !d.largest_files.length) {
+      list.innerHTML = '<div class="empty">该目录下没有发现大文件</div>';
+      return;
+    }
+    list.innerHTML = d.largest_files.map(function (f) {
+      return '<div class="row">' +
+        '<div class="row-main"><div class="row-text">' +
+          '<span class="row-name">' + escapeHtml(f.file_name) + '</span>' +
+          '<span class="row-desc" title="' + escapeHtml(f.path) + '">' + escapeHtml(f.path) + '</span>' +
+        '</div></div>' +
+        '<span class="row-value">' + formatBytes(f.size) + '</span>' +
+      '</div>';
+    }).join('');
+  }).catch(function (e) {
+    list.innerHTML = '<div class="empty">分析失败：' + escapeHtml(e.message) + '。请检查路径是否存在。</div>';
+    showToast('分析失败：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+
+/* ---------------- 系统优化 ---------------- */
+function runOptimize() {
+  var list = document.getElementById('optimize-results');
+  var btn = document.getElementById('btn-run-optimize');
+  list.innerHTML = '<div class="empty"><span class="spinner"></span>正在执行优化任务…</div>';
+  if (btn) btn.disabled = true;
+  fetch('/api/optimize').then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (data) {
+    list.innerHTML = data.map(function (r) {
+      var tag = r.success ? '<span class="tag ok">成功</span>' : '<span class="tag busy">失败</span>';
+      return '<div class="row">' +
+        '<div class="row-main"><div class="row-text">' +
+          '<span class="row-name">' + escapeHtml(r.task_name) + ' ' + tag + '</span>' +
+          '<span class="row-desc">' + escapeHtml(r.message) + '</span>' +
+        '</div></div>' +
+      '</div>';
+    }).join('');
+  }).catch(function (e) {
+    list.innerHTML = '<div class="empty">优化未执行：' + escapeHtml(e.message) + '</div>';
+    showToast('优化未执行：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+
+/* ---------------- 已安装应用 ---------------- */
+var cachedApps = [];
+function loadApps() {
+  var list = document.getElementById('app-list');
+  var btn = document.getElementById('btn-load-apps');
+  var q = (document.getElementById('app-search') || {}).value || '';
+  list.innerHTML = '<div class="empty"><span class="spinner"></span>正在读取注册表应用清单…</div>';
+  if (btn) btn.disabled = true;
+  var url = '/api/uninstall/list' + (q.trim() ? '?q=' + encodeURIComponent(q.trim()) : '');
+  fetch(url).then(function (res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function (data) {
+    cachedApps = data || [];
+    var cnt = document.getElementById('app-count');
+    if (cnt) cnt.innerText = '共 ' + cachedApps.length + ' 个应用' + (q.trim() ? '（匹配「' + q.trim() + '」）' : '');
+    if (!cachedApps.length) { list.innerHTML = '<div class="empty">没有匹配的已安装应用</div>'; return; }
+    list.innerHTML = cachedApps.slice(0, 60).map(function (a, i) {
+      var sizeTxt = a.estimated_size_kb > 0 ? formatBytes(a.estimated_size_kb * 1024) : '未知';
+      // 不能用 JSON.stringify 拼 onclick：双引号会截断 HTML 属性（这就是之前点不动的原因）
+      var action = a.can_uninstall
+        ? '<button type="button" class="btn btn-danger btn-sm" data-idx="' + i + '" onclick="runUninstallAt(this.dataset.idx)">卸载</button>'
+        : '<span class="tag busy" title="' + escapeHtml(a.block_reason) + '">需到设置卸载</span>';
+      return '<div class="row">' +
+        '<div class="row-main"><div class="row-text">' +
+          '<span class="row-name">' + escapeHtml(a.display_name) + '</span>' +
+          '<span class="row-desc">版本 ' + escapeHtml(a.display_version || '未知') + ' · ' + escapeHtml(a.publisher || '未知发行商') + '</span>' +
+        '</div></div>' +
+        '<span class="row-value">' + sizeTxt + '</span>' +
+        '<span class="row-action">' + action + '</span>' +
+      '</div>';
+    }).join('');
+  }).catch(function (e) {
+    list.innerHTML = '<div class="empty">加载失败：' + escapeHtml(e.message) + '</div>';
+    showToast('加载失败：' + e.message, 'error');
+  }).then(function () { if (btn) btn.disabled = false; });
+}
+
+function runUninstallAt(idx) {
+  var app = cachedApps[parseInt(idx, 10)];
+  if (!app) { showToast('应用信息已过期，请刷新列表', 'warning'); return; }
+  runUninstall(app);
+}
+
+function runUninstall(app) {
+  var name = app.display_name;
+  if (!confirm('将启动「' + name + '」自带的卸载程序。\n\n卸载过程由该程序引导，请在弹出的窗口里完成；WinSweep 不会静默删除任何文件。\n\n继续吗？')) return;
+  fetch('/api/uninstall/run', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: app.display_name, uninstall_string: app.uninstall_string })
+  }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d.ok) {
+      showToast(d.message, 'success');
+      showToast('卸载完成后回到这里点「刷新列表」，并可用「深度清理」扫掉残留', 'info');
+      setTimeout(loadApps, 4000);
+    } else {
+      showToast('无法启动卸载：' + (d.error || '未知原因'), 'error');
+    }
+  }).catch(function (e) { showToast('请求失败：' + e.message, 'error'); });
+}
+
+/* ---------------- 文件迁移 ---------------- */
+function loadMigrateVolumes() {
+  var sel = document.getElementById('mig-target');
+  if (!sel) return;
+  fetch('/api/migrate/volumes').then(function (r) { return r.json(); }).then(function (vols) {
+    sel.innerHTML = vols.map(function (v) {
+      return '<option value="' + escapeHtml(v.mount) + '">' + escapeHtml(v.mount) +
+        ' — 可用 ' + formatBytes(v.free_bytes) + ' / 共 ' + formatBytes(v.total_bytes) +
+        (v.label ? '（' + escapeHtml(v.label) + '）' : '') + '</option>';
+    }).join('');
+    renderMigChips();
+  }).catch(function (e) { showToast('读取磁盘失败：' + e.message, 'error'); });
+}
+
+function renderMigChips() {
+  var box = document.getElementById('mig-chips');
+  if (!box) return;
+  fetch('/api/migrate/presets').then(function (r) { return r.json(); }).then(function (items) {
+    box.innerHTML = (items || []).map(function (it) {
+      return '<button type="button" class="mig-chip" title="' + escapeHtml(it.path) + '" data-path="' + escapeHtml(it.path) + '" onclick="fillMigrateSource(this.dataset.path)">' + escapeHtml(it.label) + '</button>';
+    }).join('');
+  }).catch(function () { box.innerHTML = ''; });
+}
+
+function fillMigrateSource(path) {
+  var input = document.getElementById('mig-source');
+  if (!input || !path) return;
+  input.value = path;
+  input.focus();
+}
+
+function planMigrate() {
+  var src = (document.getElementById('mig-source') || {}).value || '';
+  var tgt = (document.getElementById('mig-target') || {}).value || '';
+  var box = document.getElementById('mig-plan-box');
+  var runBtn = document.getElementById('btn-mig-run');
+  if (!src.trim()) { showToast('先填写要迁移的文件夹路径', 'warning'); return; }
+  if (!tgt) { showToast('没有可用的目标磁盘', 'warning'); return; }
+
+  box.hidden = false;
+  box.innerHTML = '<div class="empty"><span class="spinner"></span>正在预检（统计体积、检查权限与剩余空间）…</div>';
+  if (runBtn) runBtn.disabled = true;
+
+  fetch('/api/migrate/plan', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source: src.trim(), target: tgt })
+  }).then(function (r) { return r.json(); }).then(function (p) {
+    if (p.error) { box.innerHTML = '<div class="bad">预检失败：' + escapeHtml(p.error) + '</div>'; return; }
+    var html = '';
+    html += '<div class="kv"><span>源目录</span><span>' + escapeHtml(p.source) + '</span></div>';
+    html += '<div class="kv"><span>将迁移到</span><span>' + escapeHtml(p.dest) + '</span></div>';
+    html += '<div class="kv"><span>数据量</span><span>' + formatBytes(p.source_bytes) + ' · ' + p.source_files + ' 个文件</span></div>';
+    html += '<div class="kv"><span>目标剩余</span><span>' + formatBytes(p.target_free_bytes) + '（需要约 ' + formatBytes(p.required_bytes) + '）</span></div>';
+    html += '<div class="kv"><span>方式</span><span>' + escapeHtml(p.method) + '</span></div>';
+    if (p.blockers && p.blockers.length) {
+      html += '<ul>' + p.blockers.map(function (b) { return '<li class="bad">✕ ' + escapeHtml(b) + '</li>'; }).join('') + '</ul>';
+    }
+    if (p.warnings && p.warnings.length) {
+      html += '<ul>' + p.warnings.map(function (w) { return '<li class="warn">! ' + escapeHtml(w) + '</li>'; }).join('') + '</ul>';
+    }
+    html += '<div style="margin-top:10px;font-weight:700;">' + (p.can_run ? '预检通过，可以开始迁移' : '存在阻断项，不能迁移') + '</div>';
+    box.innerHTML = html;
+    if (runBtn) runBtn.disabled = !p.can_run;
+  }).catch(function (e) {
+    box.innerHTML = '<div class="bad">预检请求失败：' + escapeHtml(e.message) + '</div>';
+  });
+}
+
+var migTimer = null;
+function startMigrate() {
+  var src = (document.getElementById('mig-source') || {}).value || '';
+  var tgt = (document.getElementById('mig-target') || {}).value || '';
+  if (!confirm('确认迁移？\n\n过程：复制 → 逐项校验 → 建立目录联接 → 删除原副本。\n源数据只有在复制校验通过后才会被替换；任何一步失败都会保留原数据。\n\n建议先关闭正在使用该文件夹的程序。')) return;
+
+  var jobBox = document.getElementById('mig-job');
+  jobBox.hidden = false;
+  jobBox.innerHTML = '<div class="stage"><span>提交任务…</span><span>0%</span></div><div class="bar"><i style="width:0%"></i></div>';
+  var runBtn = document.getElementById('btn-mig-run');
+  if (runBtn) runBtn.disabled = true;
+
+  fetch('/api/migrate/execute', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source: src.trim(), target: tgt })
+  }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d.error) { showToast(d.error, 'error'); return; }
+    if (migTimer) clearInterval(migTimer);
+    migTimer = setInterval(pollMigrate, 700);
+  }).catch(function (e) { showToast('提交失败：' + e.message, 'error'); });
+}
+
+function pollMigrate() {
+  fetch('/api/migrate/status').then(function (r) { return r.json(); }).then(function (s) {
+    var jobBox = document.getElementById('mig-job');
+    jobBox.hidden = false;
+    jobBox.innerHTML = '<div class="stage"><span>' + escapeHtml(s.stage) + ' · ' + escapeHtml(s.message) + '</span><span>' + s.percent + '%</span></div>' +
+      '<div class="bar"><i style="width:' + s.percent + '%"></i></div>';
+
+    if (s.finished) {
+      if (migTimer) { clearInterval(migTimer); migTimer = null; }
+      if (s.success) {
+        showToast('迁移完成，原路径已指向新位置', 'success');
+        loadMigrateList();
+        var runBtn = document.getElementById('btn-mig-run');
+        if (runBtn) runBtn.disabled = false;
+      } else {
+        showToast('迁移未完成：' + s.message, 'error');
+        var rb = document.getElementById('btn-mig-run');
+        if (rb) rb.disabled = false;
+      }
+    }
+  }).catch(function () {});
+}
+
+function loadMigrateList() {
+  var list = document.getElementById('mig-list');
+  if (!list) return;
+  fetch('/api/migrate/list').then(function (r) { return r.json(); }).then(function (recs) {
+    if (!recs.length) { list.innerHTML = '<div class="empty">还没有迁移记录</div>'; return; }
+    list.innerHTML = recs.map(function (r) {
+      var tag = r.status === 'done' ? '<span class="tag ok">已完成</span>'
+        : r.status === 'undone' ? '<span class="tag admin">已撤销</span>'
+        : '<span class="tag busy">' + escapeHtml(r.status) + '</span>';
+      var undo = r.status === 'done'
+        ? '<button class="btn" style="min-height:30px;padding:4px 12px;font-size:12px;" onclick="undoMigrate(\'' + r.id + '\')">撤销</button>'
+        : '';
+      return '<div class="row">' +
+        '<div class="row-main"><div class="row-text">' +
+          '<span class="row-name">' + escapeHtml(r.source) + ' ' + tag + '</span>' +
+          '<span class="row-desc" title="' + escapeHtml(r.dest) + '">→ ' + escapeHtml(r.dest) + ' · ' + formatBytes(r.bytes) + ' / ' + r.files + ' 个文件 · ' + escapeHtml(r.at) + '</span>' +
+        '</div></div>' +
+        '<span class="row-value"></span>' +
+        '<span style="margin-left:12px;">' + undo + '</span>' +
+      '</div>';
+    }).join('');
+  }).catch(function () {});
+}
+
+function undoMigrate(id) {
+  if (!confirm('撤销会移除目录联接并把数据搬回原位置（原盘需要有足够空间）。继续吗？')) return;
+  fetch('/api/migrate/undo', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id })
+  }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d.ok) { showToast('已撤销，数据回到原位置', 'success'); loadMigrateList(); }
+    else showToast('撤销失败：' + (d.error || '未知原因'), 'error');
+  }).catch(function (e) { showToast('撤销请求失败：' + e.message, 'error'); });
+}
+
+/* ---------------- 初始化 ---------------- */
+fetchStatus();
+setInterval(fetchStatus, 3000);
+</script>
+</body>
+</html>
