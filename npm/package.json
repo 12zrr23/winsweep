@@ -1,6 +1,6 @@
 {
   "name": "winsweep",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Windows 深度清理 / 系统优化 / 磁盘分析 / 软件卸载 / 安全文件迁移（Rust 单文件 + 本地 Web GUI）",
   "bin": {
     "winsweep": "bin/winsweep.js"
