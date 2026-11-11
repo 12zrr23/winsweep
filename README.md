@@ -12,7 +12,8 @@ WinSweep 是一个面向 Windows 10/11 的系统维护工具，灵感来自 macO
 [![npm version](https://img.shields.io/npm/v/winsweep.svg)](https://www.npmjs.com/package/winsweep)
 [![npm downloads](https://img.shields.io/npm/dm/winsweep.svg)](https://www.npmjs.com/package/winsweep)
 [![license](https://img.shields.io/npm/l/winsweep.svg)](LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/12zrr23/winsweep)](https://github.com/12zrr23/winsweep/releases)
+[![ci](https://github.com/12zrr23/winsweep/actions/workflows/ci.yml/badge.svg)](https://github.com/12zrr23/winsweep/actions/workflows/ci.yml)
+[![release](https://github.com/12zrr23/winsweep/actions/workflows/release.yml/badge.svg)](https://github.com/12zrr23/winsweep/actions/workflows/release.yml)
 
 ```text
 版本 0.1.0   ·   Rust 1.99 / edition 2024   ·   仅 Windows   ·   GUI 默认 http://127.0.0.1:41234
@@ -471,6 +472,40 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ..\verify-installer-e2e.ps1
 ```
 
 当前状态：**0 条发现**；五套主题均已截图核对。
+
+### 12.5 自动发版（GitHub Actions）
+
+仓库已内置两条流水线（`.github/workflows/`）：
+
+| 工作流 | 触发 | 做什么 |
+| :--- | :--- | :--- |
+| `ci.yml` | push 到 `main` / PR | Windows 上 `cargo build --release --locked` + 迁移自检 + UI 体积护栏 |
+| `release.yml` | **推送 `v*` tag** | 校验版本一致 → 构建 exe → 生成 sha256 → 建 Release（附资产）→ `npm publish` |
+
+**发一个新版本的完整流程（3 步，无需手工传 token）：**
+
+```powershell
+# 1) 三处版本号改成同一个（tag 必须一致，工作流会强校验）
+#    Cargo.toml 的 version、npm/package.json 的 version
+# 2) 提交
+git commit -am "chore: release v0.1.2"
+# 3) 打 tag 并推送 —— 之后全自动
+git tag v0.1.2
+git push origin main --follow-tags
+```
+
+流水线会：构建 `winsweep.exe` → 复制为 `winsweep-win32-x64.exe` → 算 sha256 →
+用 `GITHUB_TOKEN` 建 Release 并上传两个资产 → 用仓库 Secret `NPM_TOKEN` 发布到 npm。
+
+**一次性配置（只需做一次）：**
+
+1. 在 npmjs.com 创建一个 **Granular Access Token**：`Read and write` + 勾选 **Bypass 2FA**，有效期建议 90 天；
+2. 存为仓库 Secret：`gh secret set NPM_TOKEN -R 12zrr23/winsweep`（粘贴 token），
+   或 GitHub 页面 → Settings → Secrets and variables → Actions → New repository secret，名称 `NPM_TOKEN`；
+3. 到期前换新 token 并更新 Secret。
+
+> npm 侧会逐步收紧「bypass 2FA 直接发布」（2027-01 起），届时改用 **Trusted Publishing（OIDC）**：
+> 无需任何 token，由 GitHub Actions 的 OIDC 身份直接获得发布权限。本仓库结构已兼容，只改 `release.yml` 一段配置即可。
 
 ---
 

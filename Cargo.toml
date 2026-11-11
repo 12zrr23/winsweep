@@ -1,6 +1,6 @@
 [package]
 name = "winsweep"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["WinSweep Team"]
 description = "Deep clean, optimize, analyze disk, and monitor your Windows PC in Rust"

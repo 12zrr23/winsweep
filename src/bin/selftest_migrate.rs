@@ -4,9 +4,31 @@ use winsweep::core::migrate::{self, Migrator};
 use winsweep::core::uninstall::AppUninstaller;
 
 fn main() {
-    let root = PathBuf::from(std::env::var("USERPROFILE").unwrap())
-        .join("Desktop")
-        .join("owen-work");
+    // 依次尝试：显式指定目录 > TEMP > TMP > 当前目录，取第一个可写的
+    let mut candidates: Vec<PathBuf> = Vec::new();
+    if let Ok(d) = std::env::var("WINSWEEP_SELFTEST_DIR") {
+        candidates.push(PathBuf::from(d));
+    }
+    for k in ["TEMP", "TMP"] {
+        if let Ok(d) = std::env::var(k) {
+            candidates.push(PathBuf::from(d).join("winsweep_selftest"));
+        }
+    }
+    candidates.push(std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")).join("winsweep_selftest"));
+
+    let mut root = PathBuf::from(".");
+    for c in &candidates {
+        if fs::create_dir_all(c).is_ok() {
+            // 再确认可写
+            let probe = c.join(".write_probe");
+            if fs::write(&probe, b"x").is_ok() {
+                let _ = fs::remove_file(&probe);
+                root = c.clone();
+                break;
+            }
+        }
+    }
+    println!("selftest dir: {}", root.display());
     let src = root.join("_mig_src");
     let dest_root = root.join("_mig_dest");
 
