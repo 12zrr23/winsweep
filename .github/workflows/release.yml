@@ -62,10 +62,14 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
-      # 使用 npm Trusted Publishing（OIDC），无需任何 token
       - name: Upgrade npm (OIDC support >= 11.5.2)
         run: npm install -g npm@latest
 
-      - name: Publish to npm via OIDC trusted publishing
+      # 首选 Trusted Publishing（OIDC，免 token）；若仓库尚未配置信任连接则回退到 NPM_TOKEN
+      - name: Publish to npm (OIDC, fallback to token)
         working-directory: npm
-        run: npm publish --registry=https://registry.npmjs.org/ --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --registry=https://registry.npmjs.org/ --access public --provenance ||
+          npm publish --registry=https://registry.npmjs.org/ --access public
