@@ -8,6 +8,7 @@ WinSweep 是一个面向 Windows 10/11 的系统维护工具，灵感来自 macO
 但**从界面到实现全部原创重写**，并针对 Windows 的实际痛点（C 盘爆满、残留启动项、开发者缓存、软件卸载残留）做了强化。
 
 两种使用方式：**命令行**（适合脚本 / Agent 自动化）与**本地 Web GUI**（适合人工操作）。
+安装：`npm install -g winsweep`（详见 [快速开始](#4-快速开始)）。
 
 [![npm version](https://img.shields.io/npm/v/winsweep.svg)](https://www.npmjs.com/package/winsweep)
 [![npm downloads](https://img.shields.io/npm/dm/winsweep.svg)](https://www.npmjs.com/package/winsweep)
@@ -139,23 +140,123 @@ WinSweep 解决四类问题：
 
 ### 4.1 通过 npm 安装（普通用户推荐）
 
+#### 前置要求
+
+| 项 | 要求 | 检查方法 |
+| :--- | :--- | :--- |
+| 操作系统 | Windows 10 / 11（x64） | — |
+| Node.js | ≥ 18（仅安装阶段用，**运行本身不依赖 Node**） | `node --version` |
+
+> 没有 Node.js？去 https://nodejs.org 下载 LTS 版安装（一路下一步即可），或在 PowerShell 里执行 `winget install OpenJS.NodeJS.LTS`。
+
+#### 安装
+
+打开 **PowerShell** 或 **CMD**（Win 键 → 输入 `powershell` → 回车），执行：
+
 ```bash
 npm install -g winsweep
-winsweep --version
+```
+
+安装过程（约 10–30 秒，取决于网速）：
+
+1. npm 下载安装器包（仅 4.4 kB）；
+2. `postinstall` 脚本自动从 GitHub Release 下载 **winsweep-win32-x64.exe**（约 4.8 MB）；
+3. 自动校验 **SHA256**（与 Release 里的校验文件比对，不符则报错重来）；
+4. 完成，`winsweep` 命令全局可用。
+
+看到这样的输出就是成功了：
+
+```text
+added 1 package in 8s
+[winsweep] 正在下载二进制：https://github.com/12zrr23/winsweep/releases/download/v0.1.2/winsweep-win32-x64.exe
+[winsweep] sha256 校验通过
+[winsweep] 安装完成（4.79 MB）→ C:\Users\你\AppData\Roaming\npm\node_modules\winsweep\bin\winsweep.exe
+[winsweep] 运行：winsweep --help    或    winsweep gui
+```
+
+#### 验证安装
+
+```bash
+winsweep --version      # 应输出：winsweep 0.1.2
+winsweep status         # 打印系统健康分和硬件状态
+```
+
+#### 第一次使用（30 秒上手）
+
+```bash
+# 1) 看看能清多少（只预览，不删除任何东西）
+winsweep clean --dry-run
+
+# 2) 打开图形界面（自动弹出浏览器）
 winsweep gui
 ```
 
-安装时 `postinstall` 会自动从 GitHub Release 下载 Windows 二进制（约 4.8 MB 校验后落盘），**无需编译、无外部运行时**。
-网络受限时可用镜像或本地文件：
+`winsweep gui` 会启动本地服务并自动打开 `http://127.0.0.1:41234`。
+界面上每个危险操作都有二次确认；关闭 PowerShell 窗口（或 Ctrl+C）即退出服务。
+
+#### 升级与卸载
+
+```bash
+npm update -g winsweep      # 升级到最新版（重新下载新二进制）
+npm uninstall -g winsweep   # 卸载（会移除命令与下载的 exe）
+```
+
+> 卸载不会删除你的配置和日志（`%LOCALAPPDATA%\winsweep\`），需要的话手动删。
+
+#### 常见安装问题（国内网络 / 杀软告警）
+
+**① 下载慢或超时** —— GitHub 直连不稳时，换镜像源：
 
 ```bash
 WINSWEEP_MIRROR=https://ghproxy.net/ npm install -g winsweep
-WINSWEEP_BINARY=D:\downloads\winsweep.exe npm install -g winsweep
 ```
 
-> npm 包体积仅 4.3 kB，二进制在安装阶段按需下载，升级版本时自动替换。包主页：https://www.npmjs.com/package/winsweep
+**② 完全离线 / 内网环境** —— 先手动下载 exe，再指向它安装：
 
-### 4.2 直接运行（已编译）
+```bash
+# 浏览器打开 https://github.com/12zrr23/winsweep/releases 下载 winsweep-win32-x64.exe
+WINSWEEP_BINARY=D:\downloads\winsweep-win32-x64.exe npm install -g winsweep
+```
+
+**③ 杀毒软件 / SmartScreen 告警** —— exe 未做代码签名，属正常告警：
+
+- Windows Defender：告警页 →「更多信息」→「仍要运行」；
+- 想彻底验证：比对 SHA256（安装日志里有，Release 页也公示）；
+- 不放心就改用「从源码构建」（见 4.3），编译产物自己生成。
+
+**④ `npm install` 报 ENEEDAUTH / 权限错误** —— 不要用管理员终端装全局包（反而会坏权限）。如果已经装坏了：
+
+```bash
+npm uninstall -g winsweep
+npm cache clean --force
+npm install -g winsweep
+```
+
+**⑤ `winsweep` 命令找不到** —— 重开一个 PowerShell 窗口（PATH 刷新），或运行 `npm config get prefix` 确认该目录在 PATH 里。
+
+#### npm 包的工作原理（可选阅读）
+
+```
+npm i -g winsweep
+  └─ postinstall: node install.js
+       ├─ 已有 exe 且校验通过？ → 跳过（幂等）
+       ├─ WINSWEEP_BINARY 指定本地文件？ → 直接复制
+       └─ 下载 https://github.com/12zrr23/winsweep/releases/download/v<版本>/winsweep-win32-x64.exe
+            └─ sha256 校验（Release 里的 .sha256 文件）→ 失败即删除重报错
+  └─ bin/winsweep.js：把命令行参数原样透传给 exe，Ctrl+C 信号也会转发
+```
+
+环境变量一览：
+
+| 变量 | 作用 | 示例 |
+| :--- | :--- | :--- |
+| `WINSWEEP_MIRROR` | 下载地址前缀（镜像） | `https://ghproxy.net/` |
+| `WINSWEEP_BINARY` | 本地 exe 路径（离线安装） | `D:\dl\winsweep.exe` |
+| `WINSWEEP_SKIP_DOWNLOAD` | 跳过下载（先装壳后补） | `1` |
+| `WINSWEEP_SHA256` | 手动指定校验值 | `abc123...` |
+| `WINSWEEP_SKIP_VERIFY` | 跳过校验（不推荐） | `1` |
+
+### 4.2 直接运行（已编译 exe）
 
 ```powershell
 # 启动 GUI（会自动打开浏览器）
