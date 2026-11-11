@@ -9,6 +9,11 @@ WinSweep 是一个面向 Windows 10/11 的系统维护工具，灵感来自 macO
 
 两种使用方式：**命令行**（适合脚本 / Agent 自动化）与**本地 Web GUI**（适合人工操作）。
 
+[![npm version](https://img.shields.io/npm/v/winsweep.svg)](https://www.npmjs.com/package/winsweep)
+[![npm downloads](https://img.shields.io/npm/dm/winsweep.svg)](https://www.npmjs.com/package/winsweep)
+[![license](https://img.shields.io/npm/l/winsweep.svg)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/12zrr23/winsweep)](https://github.com/12zrr23/winsweep/releases)
+
 ```text
 版本 0.1.0   ·   Rust 1.99 / edition 2024   ·   仅 Windows   ·   GUI 默认 http://127.0.0.1:41234
 ```
@@ -147,7 +152,7 @@ WINSWEEP_MIRROR=https://ghproxy.net/ npm install -g winsweep
 WINSWEEP_BINARY=D:\downloads\winsweep.exe npm install -g winsweep
 ```
 
-> npm 包体积仅 4.3 kB，二进制在安装阶段按需下载，升级版本时自动替换。
+> npm 包体积仅 4.3 kB，二进制在安装阶段按需下载，升级版本时自动替换。包主页：https://www.npmjs.com/package/winsweep
 
 ### 4.2 直接运行（已编译）
 
